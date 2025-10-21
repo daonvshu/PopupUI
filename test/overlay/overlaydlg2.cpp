@@ -30,7 +30,7 @@ void OverlayDlg2::on_btn_close_top_clicked() {
 }
 
 void OverlayDlg2::on_btn_close_all_clicked() {
-    DialogOverlay::clear();
+    DialogOverlay::closeAll();
 }
 
 void OverlayDlg2::paintEvent(QPaintEvent* event) {

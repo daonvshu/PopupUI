@@ -21,9 +21,9 @@ public:
 
     static void registerHostWindow(QWidget* host, const QColor& backgroundMaskColor = QColor(0, 0, 0, 128));
     static void enableMaskAnimation(bool enable);
-    static void showDialog(QWidget* dlg, PopupAnimation* anim = nullptr, const PopupProperty& popupAnim = PopupProperty());
+    static void showDialog(QWidget* dlg, PopupAnimation* popupAnim = nullptr, const PopupProperty& prop = PopupProperty());
     static void closeTopDialog();
-    static void clear();
+    static void closeAll();
 
 public:
     DialogOverlay() = delete;

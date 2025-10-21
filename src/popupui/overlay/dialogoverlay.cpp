@@ -64,7 +64,7 @@ void DialogOverlay::closeTopDialog() {
     }
 }
 
-void DialogOverlay::clear() {
+void DialogOverlay::closeAll() {
     if (d.stack.isEmpty()) {
         return;
     }
