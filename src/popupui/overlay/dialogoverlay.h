@@ -10,7 +10,7 @@ POPUPUI_BEGIN_NAMESPACE
 
 struct DialogOverlayData;
 class DialogOverlay {
-    Q_DISABLE_COPY_MOVE(DialogOverlay)
+    Q_DISABLE_COPY(DialogOverlay)
 
 public:
     struct Layer {

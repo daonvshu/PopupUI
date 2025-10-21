@@ -10,11 +10,10 @@ ScalePopupAnimation::ScalePopupAnimation(int duration, qreal scaleFactor)
 {}
 
 QAbstractAnimation* ScalePopupAnimation::enter(QWidget* widget) {
-    QRect finalGeom = widget->geometry(); // 最终大小
+    QRect finalGeom = widget->geometry();
     QSize finalSize = finalGeom.size();
     QPoint finalPos = finalGeom.topLeft();
 
-    // 缩放后的初始大小和位置（居中）
     QSize startSize(finalSize.width() * scaleFactor,
                     finalSize.height() * scaleFactor);
     QPoint startPos(finalPos.x() + (finalSize.width() - startSize.width()) / 2,
@@ -37,7 +36,6 @@ QAbstractAnimation* ScalePopupAnimation::exit(QWidget* widget) {
     QSize startSize = startGeom.size();
     QPoint startPos = startGeom.topLeft();
 
-    // 缩小后的目标大小和位置
     QSize endSize(startSize.width() * scaleFactor,
                   startSize.height() * scaleFactor);
     QPoint endPos(startPos.x() + (startSize.width() - endSize.width()) / 2,

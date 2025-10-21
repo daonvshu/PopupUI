@@ -6,7 +6,7 @@
 #include "animations/fadepopupanimation.h"
 
 POPUPUI_BEGIN_NAMESPACE
-    struct DialogOverlayData {
+struct DialogOverlayData {
     QWidget* hostWindow = nullptr;
     QWidget* overlayMask = nullptr;
     QStack<DialogOverlay::Layer> stack;
