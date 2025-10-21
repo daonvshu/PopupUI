@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>239</width>
-    <height>81</height>
+    <width>246</width>
+    <height>97</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,14 +21,55 @@
   <widget class="QPushButton" name="btn_close">
    <property name="geometry">
     <rect>
-     <x>80</x>
-     <y>30</y>
+     <x>10</x>
+     <y>60</y>
      <width>75</width>
      <height>23</height>
     </rect>
    </property>
    <property name="text">
     <string>close</string>
+   </property>
+  </widget>
+  <widget class="QWidget" name="drag_area" native="true">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>10</y>
+     <width>191</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">#drag_area {
+	background: lightgreen;
+}</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btn_close_top">
+   <property name="geometry">
+    <rect>
+     <x>90</x>
+     <y>60</y>
+     <width>75</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>close top</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btn_close_all">
+   <property name="geometry">
+    <rect>
+     <x>170</x>
+     <y>60</y>
+     <width>75</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>close all</string>
    </property>
   </widget>
  </widget>

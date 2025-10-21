@@ -30,9 +30,10 @@ void OverlayDlg1::on_btn_show2_clicked() {
         //new ScalePopupAnimation,
         //new SlidePopupAnimation(SlideDirection::FromRight),
         new ParallelPopupAnimation({ new FadePopupAnimation, new ScalePopupAnimation }),
-        DialogMask::Property()
+        PopupProperty()
             .closeOnClickOutside()
             .setMaskColor(QColor(255, 170, 255, 50))
+            .setDraggableArea(dlg->getDraggableArea())
     );
 }
 

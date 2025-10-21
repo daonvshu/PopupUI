@@ -4,7 +4,7 @@
 
 POPUPUI_BEGIN_NAMESPACE
 
-DialogMask::DialogMask(QWidget* parent, QWidget* dlg, const Property& props)
+DialogMask::DialogMask(QWidget* parent, QWidget* dlg, const PopupProperty& props)
     : QWidget(parent)
     , targetDlg(dlg)
     , props(props)
@@ -32,10 +32,16 @@ DialogMask::DialogMask(QWidget* parent, QWidget* dlg, const Property& props)
     }
 }
 
+void DialogMask::unbindEvent() {
+    if (targetDlg) {
+        targetDlg->removeEventFilter(this);
+    }
+}
+
 void DialogMask::mousePressEvent(QMouseEvent* event) {
     if (props.closable && targetDlg) {
         props.closable = false;
-        targetDlg->removeEventFilter(this);
+        unbindEvent();
         emit requestClose();
     }
 }
@@ -44,13 +50,56 @@ bool DialogMask::eventFilter(QObject* watched, QEvent* event) {
     if (event->type() == QEvent::Close) {
         if (watched == targetDlg) {
             event->ignore();
-            targetDlg->removeEventFilter(this);
+            unbindEvent();
             emit requestClose();
             return true;
         }
     } else if (event->type() == QEvent::Resize) {
         if (watched == parentWidget()) {
             setGeometry(parentWidget()->rect());
+        }
+    } else if (event->type() == QEvent::MouseButtonPress && watched == targetDlg) {
+        if (props.draggableArea.isValid()) {
+            auto me = static_cast<QMouseEvent*>(event);
+            if (me->button() == Qt::LeftButton) {
+                auto pos = me->pos();
+                if (props.draggableArea.contains(pos)) {
+                    dragging = true;
+                    dragStartPosition = me->globalPos();
+                    dragStartDialogPosition = targetDlg->pos();
+                    return true;
+                }
+            }
+        }
+    } else if (event->type() == QEvent::MouseMove && watched == targetDlg) {
+        if (dragging) {
+            auto me = static_cast<QMouseEvent*>(event);
+            auto offset = me->globalPos() - dragStartPosition;
+            auto newPos = dragStartDialogPosition + offset;
+            if (props.boundedDrag) {
+                auto parentWin = targetDlg->parentWidget();
+                if (parentWin) {
+                    auto parentRect = parentWin->rect();
+
+                    auto dlgSize = targetDlg->size();
+                    int minX = parentRect.left();
+                    int minY = parentRect.top();
+                    int maxX = parentRect.right() - dlgSize.width();
+                    int maxY = parentRect.bottom() - dlgSize.height();
+
+                    if (newPos.x() < minX) newPos.setX(minX);
+                    if (newPos.y() < minY) newPos.setY(minY);
+                    if (newPos.x() > maxX) newPos.setX(maxX);
+                    if (newPos.y() > maxY) newPos.setY(maxY);
+                }
+            }
+            targetDlg->move(newPos);
+            return true;
+        }
+    } else if (event->type() == QEvent::MouseButtonRelease && watched == targetDlg) {
+        if (dragging) {
+            dragging = false;
+            return true;
         }
     }
     return QWidget::eventFilter(watched, event);

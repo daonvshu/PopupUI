@@ -11,8 +11,12 @@ public:
     explicit OverlayDlg2(QWidget* parent = nullptr);
     ~OverlayDlg2();
 
+    QRectF getDraggableArea() const;
+
 private slots:
     void on_btn_close_clicked();
+    void on_btn_close_top_clicked();
+    void on_btn_close_all_clicked();
 
 protected:
     void paintEvent(QPaintEvent* event) override;
