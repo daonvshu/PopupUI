@@ -11,7 +11,13 @@ include_directories(${CMAKE_SOURCE_DIR}/src)
 
 set(CMAKE_DEBUG_POSTFIX "d")
 
-add_library(${PROJECT_NAME}
+if (POPUPUI_BUILD_STATIC)
+    set(_build_type STATIC)
+else ()
+    set(_build_type SHARED)
+endif ()
+
+add_library(${PROJECT_NAME} ${_build_type}
     dialogoverlay.h
     dialogoverlay.cpp
     dialogmask.h
@@ -32,6 +38,12 @@ target_link_libraries(${PROJECT_NAME}
     Qt${QT_VERSION_MAJOR}::Gui
     Qt${QT_VERSION_MAJOR}::Widgets
 )
+
+if (POPUPUI_BUILD_STATIC)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC POPUPUI_STATIC)
+else ()
+    target_compile_definitions(${PROJECT_NAME} PRIVATE POPUPUI_LIBRARY)
+endif ()
 
 target_include_directories(${PROJECT_NAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src>

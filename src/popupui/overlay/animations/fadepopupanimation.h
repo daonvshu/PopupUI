@@ -6,7 +6,7 @@
 
 POPUPUI_BEGIN_NAMESPACE
 
-class FadePopupAnimation : public PopupAnimation {
+class POPUPUI_EXPORT FadePopupAnimation : public PopupAnimation {
 public:
     using PopupAnimation::PopupAnimation;
 

@@ -13,7 +13,7 @@ enum class SlideDirection {
     FromRight
 };
 
-class SlidePopupAnimation : public PopupAnimation {
+class POPUPUI_EXPORT SlidePopupAnimation : public PopupAnimation {
 public:
     explicit SlidePopupAnimation(SlideDirection dir = SlideDirection::FromBottom, int duration = 300);
 

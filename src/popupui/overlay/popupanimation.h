@@ -6,7 +6,7 @@
 
 POPUPUI_BEGIN_NAMESPACE
 
-class PopupAnimation {
+class POPUPUI_EXPORT PopupAnimation {
 public:
     explicit PopupAnimation(int duration = 300): duration(duration) {}
     virtual ~PopupAnimation() = default;

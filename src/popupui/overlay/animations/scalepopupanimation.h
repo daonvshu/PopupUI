@@ -6,7 +6,7 @@
 
 POPUPUI_BEGIN_NAMESPACE
 
-class ScalePopupAnimation : public PopupAnimation {
+class POPUPUI_EXPORT ScalePopupAnimation : public PopupAnimation {
 public:
     explicit ScalePopupAnimation(int duration = 300, qreal scaleFactor = 0.8);
 

@@ -10,7 +10,7 @@ POPUPUI_BEGIN_NAMESPACE
 
 struct DialogOverlayData;
 struct DialogLayer;
-class DialogOverlay {
+class POPUPUI_EXPORT DialogOverlay {
     Q_DISABLE_COPY(DialogOverlay)
 
 public:

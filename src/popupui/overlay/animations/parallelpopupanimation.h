@@ -6,7 +6,7 @@
 
 POPUPUI_BEGIN_NAMESPACE
 
-class ParallelPopupAnimation : public PopupAnimation {
+class POPUPUI_EXPORT ParallelPopupAnimation : public PopupAnimation {
 public:
     explicit ParallelPopupAnimation(const QList<PopupAnimation*>& animations);
     ~ParallelPopupAnimation();

@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.15)
 
 project(PopupUI VERSION 1.0.0)
 
+option(POPUPUI_BUILD_STATIC "Build static libraries" ON)
+
 add_subdirectory(src/popupui/overlay)
 add_subdirectory(test)
 

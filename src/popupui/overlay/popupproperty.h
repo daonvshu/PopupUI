@@ -5,7 +5,7 @@
 
 POPUPUI_BEGIN_NAMESPACE
 
-struct PopupProperty {
+struct POPUPUI_EXPORT PopupProperty {
     bool closable = false;
     QColor color = Qt::transparent;
     bool interceptMouse = true;
