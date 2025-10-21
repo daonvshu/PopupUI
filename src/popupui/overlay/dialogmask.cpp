@@ -57,11 +57,11 @@ bool DialogMask::eventFilter(QObject* watched, QEvent* event) {
             setGeometry(parentWidget()->rect());
         }
     } else if (event->type() == QEvent::MouseButtonPress && watched == targetDlg) {
-        if (props.draggableArea.isValid()) {
+        if (props.draggableWidget) {
             auto me = static_cast<QMouseEvent*>(event);
             if (me->button() == Qt::LeftButton) {
                 auto pos = me->pos();
-                if (props.draggableArea.contains(pos)) {
+                if (props.draggableWidget->geometry().contains(pos)) {
                     dragging = true;
                     dragStartPosition = me->globalPos();
                     dragStartDialogPosition = targetDlg->pos();

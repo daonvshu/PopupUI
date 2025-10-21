@@ -33,7 +33,7 @@ void OverlayDlg1::on_btn_show2_clicked() {
         PopupProperty()
             .closeOnClickOutside()
             .setMaskColor(QColor(255, 170, 255, 50))
-            .setDraggableArea(dlg->getDraggableArea())
+            .setDraggableArea(dlg->getDraggableTitle())
     );
 }
 
@@ -44,7 +44,7 @@ void OverlayDlg1::on_btn_show2_exec_clicked() {
         PopupProperty()
             .closeOnClickOutside()
             .setMaskColor(QColor(255, 170, 255, 50))
-            .setDraggableArea(dlg.getDraggableArea())
+            .setDraggableArea(dlg.getDraggableTitle())
     );
     qDebug() << "overlay dlg2 exec finished!";
 }

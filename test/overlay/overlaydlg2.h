@@ -11,7 +11,7 @@ public:
     explicit OverlayDlg2(QWidget* parent = nullptr);
     ~OverlayDlg2();
 
-    QRectF getDraggableArea() const;
+    QWidget* getDraggableTitle() const;
 
 private slots:
     void on_btn_close_clicked();

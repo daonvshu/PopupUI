@@ -1,6 +1,7 @@
 #pragma once
 
 #include <popupui/comm/global.h>
+#include <qwidget.h>
 
 POPUPUI_BEGIN_NAMESPACE
 
@@ -10,7 +11,7 @@ struct PopupProperty {
     bool interceptMouse = true;
     bool deleteOnClose = true;
     bool keepCenter = true;
-    QRectF draggableArea;
+    QWidget* draggableWidget = nullptr;
     bool boundedDrag = true;
 
     PopupProperty& closeOnClickOutside(bool enabled = true) {
@@ -38,8 +39,8 @@ struct PopupProperty {
         return *this;
     }
 
-    PopupProperty& setDraggableArea(const QRectF& area, bool bounded = true) {
-        this->draggableArea = area;
+    PopupProperty& setDraggableArea(QWidget* draggableAreaWidget, bool bounded = true) {
+        this->draggableWidget = draggableAreaWidget;
         this->boundedDrag = bounded;
         this->keepCenter = false;
         return *this;

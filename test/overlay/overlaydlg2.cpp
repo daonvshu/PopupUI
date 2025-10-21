@@ -17,8 +17,8 @@ OverlayDlg2::~OverlayDlg2() {
     qDebug() << "overlay dlg2 release...";
 }
 
-QRectF OverlayDlg2::getDraggableArea() const {
-    return ui.drag_area->geometry();
+QWidget* OverlayDlg2::getDraggableTitle() const {
+    return ui.drag_area;
 }
 
 void OverlayDlg2::on_btn_close_clicked() {
