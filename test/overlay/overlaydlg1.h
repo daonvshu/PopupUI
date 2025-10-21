@@ -12,6 +12,7 @@ public:
 
 private slots:
     void on_btn_show2_clicked();
+    void on_btn_show2_exec_clicked();
     void on_btn_close_clicked();
 
 protected:

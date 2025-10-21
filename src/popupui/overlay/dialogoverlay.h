@@ -9,19 +9,15 @@
 POPUPUI_BEGIN_NAMESPACE
 
 struct DialogOverlayData;
+struct DialogLayer;
 class DialogOverlay {
     Q_DISABLE_COPY(DialogOverlay)
 
 public:
-    struct Layer {
-        QWidget* dialog;
-        QWidget* dlgMask;
-        PopupAnimation* popupAnim;
-    };
-
     static void registerHostWindow(QWidget* host, const QColor& backgroundMaskColor = QColor(0, 0, 0, 128));
     static void enableMaskAnimation(bool enable);
     static void showDialog(QWidget* dlg, PopupAnimation* popupAnim = nullptr, const PopupProperty& prop = PopupProperty());
+    static void showDialogExec(QWidget& dlg, PopupAnimation* popupAnim = nullptr, const PopupProperty& prop = PopupProperty());
     static void closeTopDialog();
     static void closeAll();
 
@@ -33,8 +29,8 @@ private:
     static DialogOverlayData d;
 
 private:
-    static void bindCloseEvent(const Layer& layer);
-    static void closeTarget(const Layer& layer);
+    static void bindCloseEvent(const DialogLayer* layer);
+    static void closeTarget(const DialogLayer* layer);
 };
 
 POPUPUI_END_NAMESPACE

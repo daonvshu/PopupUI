@@ -37,6 +37,18 @@ void OverlayDlg1::on_btn_show2_clicked() {
     );
 }
 
+void OverlayDlg1::on_btn_show2_exec_clicked() {
+    OverlayDlg2 dlg;
+    DialogOverlay::showDialogExec(dlg,
+        new FadePopupAnimation,
+        PopupProperty()
+            .closeOnClickOutside()
+            .setMaskColor(QColor(255, 170, 255, 50))
+            .setDraggableArea(dlg.getDraggableArea())
+    );
+    qDebug() << "overlay dlg2 exec finished!";
+}
+
 void OverlayDlg1::on_btn_close_clicked() {
     close();
 }

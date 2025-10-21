@@ -21,9 +21,7 @@ DialogMask::DialogMask(QWidget* parent, QWidget* dlg, const PopupProperty& props
 
     if (dlg) {
         dlg->installEventFilter(this);
-        if (props.deleteOnClose) {
-            dlg->setAttribute(Qt::WA_DeleteOnClose);
-        }
+        dlg->setAttribute(Qt::WA_DeleteOnClose, props.deleteOnClose);
         auto parentRect = parent->rect();
         auto dlgSize = dlg->size();
         QPoint centerPos((parentRect.width() - dlgSize.width()) / 2,

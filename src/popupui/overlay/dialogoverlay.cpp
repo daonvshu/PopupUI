@@ -2,14 +2,34 @@
 
 #include <qstack.h>
 #include <qpropertyanimation.h>
+#include <qeventloop.h>
 
 #include "animations/fadepopupanimation.h"
 
 POPUPUI_BEGIN_NAMESPACE
+
+struct DialogLayer {
+    QWidget* dialog;
+    QWidget* dlgMask;
+    PopupAnimation* popupAnim;
+    QEventLoop* loop;
+
+    DialogLayer()
+        : dialog(nullptr)
+        , dlgMask(nullptr)
+        , popupAnim(nullptr)
+        , loop(nullptr)
+    {}
+
+    DialogLayer(QWidget* dialog, QWidget* dlgMask, PopupAnimation* popupAnim, QEventLoop* loop)
+        : dialog(dialog), dlgMask(dlgMask), popupAnim(popupAnim), loop(loop)
+    {}
+};
+
 struct DialogOverlayData {
     QWidget* hostWindow = nullptr;
     QWidget* overlayMask = nullptr;
-    QStack<DialogOverlay::Layer> stack;
+    QStack<DialogLayer> stack;
     bool baseMaskAnimationEnabled = true;
 };
 
@@ -50,14 +70,24 @@ void DialogOverlay::showDialog(QWidget* dlg, PopupAnimation* popupAnim, const Po
         maskAnim.enter(mask)->start(QPropertyAnimation::DeleteWhenStopped);
     }
 
-    Layer layer{ dlg, mask, popupAnim };
-    bindCloseEvent(layer);
+    DialogLayer layer(dlg, mask, popupAnim, nullptr);
     d.stack.push(layer);
+    bindCloseEvent(&d.stack.top());
+}
+
+void DialogOverlay::showDialogExec(QWidget& dlg, PopupAnimation* popupAnim, const PopupProperty& prop) {
+    auto showProp = prop;
+    showProp.deleteOnClose = false;
+    QEventLoop loop;
+    showDialog(&dlg, popupAnim, showProp);
+    d.stack.top().loop = &loop;
+    loop.exec();
 }
 
 void DialogOverlay::closeTopDialog() {
     if (d.stack.isEmpty()) return;
-    closeTarget(d.stack.pop());
+    auto layer = d.stack.pop();
+    closeTarget(&layer);
     if (d.stack.isEmpty()) {
         d.overlayMask->setVisible(false);
         d.overlayMask->setWindowOpacity(1);
@@ -69,7 +99,8 @@ void DialogOverlay::closeAll() {
         return;
     }
     while (!d.stack.isEmpty()) {
-        closeTarget(d.stack.pop());
+        auto layer = d.stack.pop();
+        closeTarget(&layer);
     }
     if (d.overlayMask) {
         d.overlayMask->setVisible(false);
@@ -77,11 +108,11 @@ void DialogOverlay::closeAll() {
     }
 }
 
-void DialogOverlay::bindCloseEvent(const Layer& layer) {
-    auto mask = layer.dlgMask;
-    QObject::connect(static_cast<DialogMask*>(mask), &DialogMask::requestClose, mask, [=] {
-        auto popupAnim = layer.popupAnim;
-        auto dlg = layer.dialog;
+void DialogOverlay::bindCloseEvent(const DialogLayer* layer) {
+    auto mask = layer->dlgMask;
+    QObject::connect(static_cast<DialogMask*>(mask), &DialogMask::requestClose, mask, [layer] {
+        auto popupAnim = layer->popupAnim;
+        auto dlg = layer->dialog;
         for (int i = d.stack.size() - 1; i >= 0; --i) {
             if (d.stack[i].dialog == dlg) {
                 closeTarget(layer);
@@ -94,7 +125,7 @@ void DialogOverlay::bindCloseEvent(const Layer& layer) {
                 FadePopupAnimation maskAnim(popupAnim->duration);
                 auto anim = maskAnim.exit(d.overlayMask);
                 if (anim) {
-                    QObject::connect(anim, &QAbstractAnimation::finished, [=] {
+                    QObject::connect(anim, &QAbstractAnimation::finished, [] {
                         d.overlayMask->setVisible(false);
                         d.overlayMask->setWindowOpacity(1);
                     });
@@ -107,23 +138,27 @@ void DialogOverlay::bindCloseEvent(const Layer& layer) {
     });
 }
 
-void DialogOverlay::closeTarget(const Layer& layer) {
-    const auto mask = layer.dlgMask;
-    const auto dlg = layer.dialog;
-    auto popupAnim = layer.popupAnim;
+void DialogOverlay::closeTarget(const DialogLayer* layer) {
+    const auto mask = layer->dlgMask;
+    const auto dlg = layer->dialog;
+    auto popupAnim = layer->popupAnim;
     if (popupAnim) {
         FadePopupAnimation maskAnim(popupAnim->duration);
         auto anim = maskAnim.exit(mask);
-        QObject::connect(anim, &QAbstractAnimation::finished, [=] {
+        QObject::connect(anim, &QAbstractAnimation::finished, [mask] {
             static_cast<DialogMask*>(mask)->unbindEvent();
             mask->deleteLater();
         });
         if (anim) anim->start(QPropertyAnimation::DeleteWhenStopped);
 
         anim = popupAnim->exit(dlg);
-        QObject::connect(anim, &QAbstractAnimation::finished, [=] {
+        auto loop = layer->loop;
+        QObject::connect(anim, &QAbstractAnimation::finished, [dlg, popupAnim, loop] {
             dlg->close();
             delete popupAnim;
+            if (loop) {
+                loop->quit();
+            }
         });
         if (anim) anim->start(QPropertyAnimation::DeleteWhenStopped);
     } else {
