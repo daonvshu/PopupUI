@@ -71,4 +71,11 @@ QAbstractAnimation* SlidePopupAnimation::exit(QWidget* widget) {
     return anim;
 }
 
+void SlidePopupAnimation::setParams(PopupAnimationParams* params) {
+    PopupAnimation::setParams(params);
+    if (auto slideParams = dynamic_cast<SlidePopupAnimationParams*>(params)) {
+        dir = slideParams->dir;
+    }
+}
+
 POPUPUI_END_NAMESPACE

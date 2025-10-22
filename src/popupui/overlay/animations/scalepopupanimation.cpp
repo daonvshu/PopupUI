@@ -4,7 +4,7 @@
 
 POPUPUI_BEGIN_NAMESPACE
 
-ScalePopupAnimation::ScalePopupAnimation(int duration, qreal scaleFactor)
+ScalePopupAnimation::ScalePopupAnimation(qreal scaleFactor, int duration)
     : PopupAnimation(duration)
     , scaleFactor(scaleFactor)
 {}
@@ -49,6 +49,13 @@ QAbstractAnimation* ScalePopupAnimation::exit(QWidget* widget) {
     anim->setEndValue(endGeom);
     anim->setEasingCurve(QEasingCurve::InBack);
     return anim;
+}
+
+void ScalePopupAnimation::setParams(PopupAnimationParams* params) {
+    PopupAnimation::setParams(params);
+    if (auto scaleParams = dynamic_cast<ScalePopupAnimationParams*>(params)) {
+        scaleFactor = scaleParams->scaleFactor;
+    }
 }
 
 POPUPUI_END_NAMESPACE

@@ -3,14 +3,12 @@
 #include <qobject.h>
 
 #include "../popupanimation.h"
+#include "../slidedirection.h"
 
 POPUPUI_BEGIN_NAMESPACE
 
-enum class SlideDirection {
-    FromTop,
-    FromBottom,
-    FromLeft,
-    FromRight
+struct POPUPUI_EXPORT SlidePopupAnimationParams : PopupAnimationParams {
+    SlideDirection dir = SlideDirection::FromBottom;
 };
 
 class POPUPUI_EXPORT SlidePopupAnimation : public PopupAnimation {
@@ -19,6 +17,8 @@ public:
 
     QAbstractAnimation* enter(QWidget* widget) override;
     QAbstractAnimation* exit(QWidget* widget) override;
+
+    void setParams(PopupAnimationParams* params) override;
 
 private:
     SlideDirection dir;

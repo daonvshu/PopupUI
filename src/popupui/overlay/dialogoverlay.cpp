@@ -5,6 +5,9 @@
 #include <qeventloop.h>
 
 #include "animations/fadepopupanimation.h"
+#include "animations/parallelpopupanimation.h"
+#include "animations/scalepopupanimation.h"
+#include "animations/slidepopupanimation.h"
 
 POPUPUI_BEGIN_NAMESPACE
 
@@ -31,6 +34,10 @@ struct DialogOverlayData {
     QWidget* overlayMask = nullptr;
     QStack<DialogLayer*> stack;
     bool baseMaskAnimationEnabled = true;
+
+    PopupAnimationParams fadeDefaultParams;
+    ScalePopupAnimationParams scaleDefaultParams;
+    SlidePopupAnimationParams slideDefaultParams;
 };
 
 DialogOverlayData DialogOverlay::d;
@@ -44,6 +51,20 @@ void DialogOverlay::registerHostWindow(QWidget* host, const QColor& backgroundMa
 
 void DialogOverlay::enableMaskAnimation(bool enable) {
     d.baseMaskAnimationEnabled = enable;
+}
+
+void DialogOverlay::setFadeAnimationDefault(int duration) {
+    d.fadeDefaultParams.duration = duration;
+}
+
+void DialogOverlay::setScaleAnimationDefault(int duration, qreal scaleFactor) {
+    d.scaleDefaultParams.duration = duration;
+    d.scaleDefaultParams.scaleFactor = scaleFactor;
+}
+
+void DialogOverlay::setSlideAnimationDefault(int duration, SlideDirection direction) {
+    d.slideDefaultParams.duration = duration;
+    d.slideDefaultParams.dir = direction;
 }
 
 void DialogOverlay::showDialog(QWidget* dlg, PopupAnimation* popupAnim, const PopupProperty& prop) {
@@ -75,6 +96,10 @@ void DialogOverlay::showDialog(QWidget* dlg, PopupAnimation* popupAnim, const Po
     bindCloseEvent(layer);
 }
 
+void DialogOverlay::showDialog(QWidget* dlg, PopupAnimationTypes types, const PopupProperty& prop) {
+    showDialog(dlg, getAnimation(types), prop);
+}
+
 void DialogOverlay::showDialogExec(QWidget& dlg, PopupAnimation* popupAnim, const PopupProperty& prop) {
     auto showProp = prop;
     showProp.deleteOnClose = false;
@@ -82,6 +107,10 @@ void DialogOverlay::showDialogExec(QWidget& dlg, PopupAnimation* popupAnim, cons
     showDialog(&dlg, popupAnim, showProp);
     d.stack.top()->loop = &loop;
     loop.exec();
+}
+
+void DialogOverlay::showDialogExec(QWidget& dlg, PopupAnimationTypes types, const PopupProperty& prop) {
+    showDialogExec(dlg, getAnimation(types), prop);
 }
 
 void DialogOverlay::closeTopDialog() {
@@ -166,6 +195,23 @@ void DialogOverlay::closeTarget(const DialogLayer* layer) {
         mask->deleteLater();
         delete layer;
     }
+}
+
+PopupAnimation* DialogOverlay::getAnimation(PopupAnimationTypes types) {
+    QList<PopupAnimation*> animations;
+    if (types.testFlag(PopupAnimationType::Fade)) {
+        animations << new FadePopupAnimation(d.fadeDefaultParams.duration);
+    }
+    if (types.testFlag(PopupAnimationType::Scale)) {
+        animations << new ScalePopupAnimation(d.scaleDefaultParams.scaleFactor, d.scaleDefaultParams.duration);
+    }
+    if (types.testFlag(PopupAnimationType::Slide)) {
+        animations << new SlidePopupAnimation(d.slideDefaultParams.dir, d.slideDefaultParams.duration);
+    }
+    if (animations.isEmpty()) {
+        return nullptr;
+    }
+    return animations.size() == 1 ? animations.first() : new ParallelPopupAnimation(animations);
 }
 
 POPUPUI_END_NAMESPACE
