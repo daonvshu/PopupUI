@@ -18,5 +18,9 @@ OverlayTest::OverlayTest(QWidget* parent)
 void OverlayTest::on_btn_show_clicked() {
     auto dlg = new OverlayDlg1;
     //DialogOverlay::showDialog(dlg, new FadePopupAnimation);
-    DialogOverlay::showDialog(dlg, PopupAnimationType::Fade | PopupAnimationType::Slide);
+    DialogOverlay::showDialog(dlg,
+        PopupAnimationType::Fade | PopupAnimationType::Slide,
+        PopupProperty()
+                //.showBaseMaskLayer(false)
+        );
 }

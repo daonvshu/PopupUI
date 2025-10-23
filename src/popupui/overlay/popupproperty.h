@@ -13,6 +13,7 @@ struct POPUPUI_EXPORT PopupProperty {
     bool keepCenter = true;
     QWidget* draggableWidget = nullptr;
     bool boundedDrag = true;
+    bool baseMaskVisible = true;
 
     PopupProperty& closeOnClickOutside(bool enabled = true) {
         this->closable = enabled;
@@ -43,6 +44,11 @@ struct POPUPUI_EXPORT PopupProperty {
         this->draggableWidget = draggableAreaWidget;
         this->boundedDrag = bounded;
         this->keepCenter = false;
+        return *this;
+    }
+
+    PopupProperty& showBaseMaskLayer(bool show = true) {
+        this->baseMaskVisible = show;
         return *this;
     }
 };

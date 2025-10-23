@@ -14,7 +14,7 @@ struct POPUPUI_EXPORT PopupAnimationParams {
 
 class POPUPUI_EXPORT PopupAnimation {
 public:
-    explicit PopupAnimation(int duration = -1): duration(duration) {}
+    explicit PopupAnimation(int duration = 300): duration(duration) {}
     virtual ~PopupAnimation() = default;
 
     virtual QAbstractAnimation* enter(QWidget* widget) = 0;

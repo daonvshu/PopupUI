@@ -72,10 +72,14 @@ void DialogOverlay::showDialog(QWidget* dlg, PopupAnimation* popupAnim, const Po
         qFatal("Call DialogOverlay::registerHostWindow before show!");
     }
     if (d.overlayMask->isHidden()) {
-        d.overlayMask->setVisible(true);
-        if (d.baseMaskAnimationEnabled && popupAnim) {
-            FadePopupAnimation maskAnim(popupAnim->duration);
-            maskAnim.enter(d.overlayMask)->start(QPropertyAnimation::DeleteWhenStopped);
+        if (d.stack.isEmpty()) {
+            if (prop.baseMaskVisible) {
+                d.overlayMask->setVisible(true);
+                if (d.baseMaskAnimationEnabled && popupAnim) {
+                    FadePopupAnimation maskAnim(popupAnim->duration);
+                    maskAnim.enter(d.overlayMask)->start(QPropertyAnimation::DeleteWhenStopped);
+                }
+            }
         }
     }
     dlg->setParent(d.hostWindow);
