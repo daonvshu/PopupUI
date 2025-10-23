@@ -84,7 +84,7 @@ DialogOverlay::showDialog(dlg, PopupAnimationType::Fade,
       .transparentMouseEvent(true) //阴影层是否鼠标穿透
       .setDeleteOnClose(true) //是否关闭时删除对象
       .keepCenterOnResized(true) //是否始终居中显示
-      .setDraggableArea(dlg->getDraggableTitleWidget()) //设置可拖拽的控件，keepCenterOnResized会自动标记为false
+      .setDraggableArea(dlg->getDraggableTitleWidget(), true) //设置可拖拽的控件，并控制在应用窗口范围内拖动，keepCenterOnResized会自动标记为false
       .showBaseMaskLayer(true) //是否显示基础阴影层
 );
 ```
