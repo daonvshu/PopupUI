@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 find_package(QT NAMES Qt5 Qt6)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui Widgets)
-find_package(QLogCollectorServer REQUIRED)
+find_package(QLogCollector REQUIRED COMPONENTS Server)
 
 add_compile_definitions(ROOT_PROJECT_PATH="${CMAKE_SOURCE_DIR}")
 
@@ -27,6 +27,6 @@ target_link_libraries(${PROJECT_NAME}
     Qt${QT_VERSION_MAJOR}::Gui
     Qt${QT_VERSION_MAJOR}::Widgets
 
-    qlogcollectorserver
+    QLogCollector::Server
     DialogOverlay
 )

@@ -1,18 +1,19 @@
 #include <qapplication.h>
-#include <qlogcollector.h>
+#include <qlogcollector/server/logcollector.h>
 
 #include "overlay/overlaytest.h"
+
+QLOGCOLLECTOR_USE_NAMESPACE
 
 int main(int argc, char* argv[]) {
     QApplication app(argc, argv);
 
-    logcollector::styleConfig
-        .consoleApp()
-        .ide_clion(false)
-        .wordWrap(360)
-        .projectSourceCodeRootPath(ROOT_PROJECT_PATH)
+    LogCollector::styleConfig
+            .wordWrap(360)
+            .projectSourceCodeRootPath(ROOT_PROJECT_PATH)
         ;
-    logcollector::QLogCollector::instance().registerLog();
+    LogCollector::addOutputTarget(OutputTarget::currentConsoleOutput(Ide::clion));
+    LogCollector::registerLog();
 
     OverlayTest test;
     test.show();
