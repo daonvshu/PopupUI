@@ -120,7 +120,6 @@ void DialogMask::resizeTarget() const {
             targetSize.setHeight(parentSize.height() * props.heightAspectRatio);
         }
         targetDlg->resize(targetSize);
-        qDebug() << "DialogMask::resizeTarget" << targetDlg->size() << "set size:" << targetSize << "parent size:" << parentSize;
     }
 }
 
@@ -171,7 +170,6 @@ void DialogMask::moveTarget() {
         }
     }
     targetDlg->move(QPoint(targetX, targetY) + props.alignOffset);
-    qDebug() << "DialogMask::moveTarget" << targetDlg->pos() << "set pos:" << QPoint(targetX, targetY) << "align pos:" << alignPos;
 }
 
 POPUPUI_END_NAMESPACE
