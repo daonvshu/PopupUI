@@ -10,10 +10,17 @@ struct POPUPUI_EXPORT PopupProperty {
     QColor color = Qt::transparent;
     bool interceptMouse = true;
     bool deleteOnClose = true;
-    bool keepCenter = true;
     QWidget* draggableWidget = nullptr;
     bool boundedDrag = true;
     bool baseMaskVisible = true;
+
+    Qt::Alignment alignment = Qt::AlignCenter;
+    QWidget* alignToTarget = nullptr;
+    QPoint alignToPos;
+    QPoint alignOffset;
+
+    double widthAspectRatio = -1;
+    double heightAspectRatio = -1;
 
     PopupProperty& closeOnClickOutside(bool enabled = true) {
         this->closable = enabled;
@@ -35,20 +42,28 @@ struct POPUPUI_EXPORT PopupProperty {
         return *this;
     }
 
-    PopupProperty& keepCenterOnResized(bool enabled = true) {
-        this->keepCenter = enabled;
-        return *this;
-    }
-
     PopupProperty& setDraggableArea(QWidget* draggableAreaWidget, bool bounded = true) {
         this->draggableWidget = draggableAreaWidget;
         this->boundedDrag = bounded;
-        this->keepCenter = false;
         return *this;
     }
 
     PopupProperty& showBaseMaskLayer(bool show = true) {
         this->baseMaskVisible = show;
+        return *this;
+    }
+
+    PopupProperty& alignToWidget(QWidget* target, const QPoint& targetPos, Qt::Alignment alignment = Qt::AlignTop | Qt::AlignHCenter, const QPoint& offset = QPoint(0, 0)) {
+        this->alignToTarget = target;
+        this->alignToPos = targetPos;
+        this->alignment = alignment;
+        this->alignOffset = offset;
+        return *this;
+    }
+
+    PopupProperty& keepAspectRatio(double widthRatio, double heightRatio) {
+        this->widthAspectRatio = widthRatio;
+        this->heightAspectRatio = heightRatio;
         return *this;
     }
 };

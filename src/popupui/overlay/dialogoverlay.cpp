@@ -62,9 +62,10 @@ void DialogOverlay::setScaleAnimationDefault(int duration, qreal scaleFactor) {
     d.scaleDefaultParams.scaleFactor = scaleFactor;
 }
 
-void DialogOverlay::setSlideAnimationDefault(int duration, SlideDirection direction) {
+void DialogOverlay::setSlideAnimationDefault(int duration, int fromOffset, SlideDirection direction) {
     d.slideDefaultParams.duration = duration;
     d.slideDefaultParams.dir = direction;
+    d.slideDefaultParams.fromOffset = fromOffset;
 }
 
 void DialogOverlay::showDialog(QWidget* dlg, PopupAnimation* popupAnim, const PopupProperty& prop) {
@@ -210,7 +211,7 @@ PopupAnimation* DialogOverlay::getAnimation(PopupAnimationTypes types) {
         animations << new ScalePopupAnimation(d.scaleDefaultParams.scaleFactor, d.scaleDefaultParams.duration);
     }
     if (types.testFlag(PopupAnimationType::Slide)) {
-        animations << new SlidePopupAnimation(d.slideDefaultParams.dir, d.slideDefaultParams.duration);
+        animations << new SlidePopupAnimation(d.slideDefaultParams.dir, d.slideDefaultParams.fromOffset, d.slideDefaultParams.duration);
     }
     if (animations.isEmpty()) {
         return nullptr;

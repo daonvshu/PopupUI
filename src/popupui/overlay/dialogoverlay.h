@@ -19,7 +19,7 @@ public:
     static void enableMaskAnimation(bool enable);
     static void setFadeAnimationDefault(int duration);
     static void setScaleAnimationDefault(int duration, qreal scaleFactor = 0.8);
-    static void setSlideAnimationDefault(int duration, SlideDirection direction = SlideDirection::FromBottom);
+    static void setSlideAnimationDefault(int duration, int fromOffset = 0, SlideDirection direction = SlideDirection::FromBottom);
 
     static void showDialog(QWidget* dlg, PopupAnimation* popupAnim = nullptr, const PopupProperty& prop = PopupProperty());
     static void showDialog(QWidget* dlg, PopupAnimationTypes types = PopupAnimationType::None, const PopupProperty& prop = PopupProperty());

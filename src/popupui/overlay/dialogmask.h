@@ -28,6 +28,10 @@ private:
     bool dragging = false;
     QPoint dragStartPosition;
     QPoint dragStartDialogPosition;
+
+private:
+    void resizeTarget() const;
+    void moveTarget();
 };
 
 POPUPUI_END_NAMESPACE

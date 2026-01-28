@@ -1,6 +1,7 @@
 #include "dialogmask.h"
 
 #include <qevent.h>
+#include <qdebug.h>
 
 POPUPUI_BEGIN_NAMESPACE
 
@@ -22,11 +23,8 @@ DialogMask::DialogMask(QWidget* parent, QWidget* dlg, const PopupProperty& props
     if (dlg) {
         dlg->installEventFilter(this);
         dlg->setAttribute(Qt::WA_DeleteOnClose, props.deleteOnClose);
-        auto parentRect = parent->rect();
-        auto dlgSize = dlg->size();
-        QPoint centerPos((parentRect.width() - dlgSize.width()) / 2,
-                         (parentRect.height() - dlgSize.height()) / 2);
-        dlg->move(centerPos);
+        resizeTarget();
+        moveTarget();
     }
 }
 
@@ -105,15 +103,75 @@ bool DialogMask::eventFilter(QObject* watched, QEvent* event) {
 
 void DialogMask::resizeEvent(QResizeEvent* event) {
     if (targetDlg) {
-        if (props.keepCenter) {
-            auto parentRect = rect();
-            auto dlgSize = targetDlg->size();
-            QPoint centerPos((parentRect.width() - dlgSize.width()) / 2,
-                             (parentRect.height() - dlgSize.height()) / 2);
-            targetDlg->move(centerPos);
-        }
+        resizeTarget();
+        moveTarget();
     }
     QWidget::resizeEvent(event);
+}
+
+void DialogMask::resizeTarget() const {
+    if (props.widthAspectRatio > 0 || props.heightAspectRatio > 0) {
+        QSize targetSize = targetDlg->size();
+        auto parentSize = size();
+        if (props.widthAspectRatio > 0) {
+            targetSize.setWidth(parentSize.width() * props.widthAspectRatio);
+        }
+        if (props.heightAspectRatio > 0) {
+            targetSize.setHeight(parentSize.height() * props.heightAspectRatio);
+        }
+        targetDlg->resize(targetSize);
+        qDebug() << "DialogMask::resizeTarget" << targetDlg->size() << "set size:" << targetSize << "parent size:" << parentSize;
+    }
+}
+
+void DialogMask::moveTarget() {
+    QPoint alignPos;
+    bool alignPosValid = false;
+    if (props.alignToTarget != nullptr) {
+        alignPos = props.alignToTarget->mapToGlobal(props.alignToPos) - this->mapToGlobal(QPoint(0, 0));
+        alignPosValid = true;
+    }
+
+    int targetX = 0;
+    int targetY = 0;
+    auto parentRect = rect();
+    auto dlgSize = targetDlg->size();
+    //horizontal
+    if (props.alignment & Qt::AlignLeft) {
+        targetX = 0;
+        if (alignPosValid) {
+            targetX = qMax(targetX, alignPos.x());
+        }
+    } else if (props.alignment & Qt::AlignRight) {
+        targetX = parentRect.width() - dlgSize.width();
+        if (alignPosValid) {
+            targetX = qMin(targetX, alignPos.x() - dlgSize.width());
+        }
+    } else {
+        targetX = parentRect.width() / 2 - dlgSize.width() / 2;
+        if (alignPosValid) {
+            targetX = qMax(targetX, alignPos.x() - dlgSize.width() / 2);
+        }
+    }
+    //vertical
+    if (props.alignment & Qt::AlignTop) {
+        targetY = 0;
+        if (alignPosValid) {
+            targetY = qMax(targetY, alignPos.y());
+        }
+    } else if (props.alignment & Qt::AlignBottom) {
+        targetY = parentRect.height() - dlgSize.height();
+        if (alignPosValid) {
+            targetY = qMin(targetY, alignPos.y() - dlgSize.height());
+        }
+    } else {
+        targetY = parentRect.height() / 2 - dlgSize.height() / 2;
+        if (alignPosValid) {
+            targetY = qMax(targetY, alignPos.y() - dlgSize.height() / 2);
+        }
+    }
+    targetDlg->move(QPoint(targetX, targetY) + props.alignOffset);
+    qDebug() << "DialogMask::moveTarget" << targetDlg->pos() << "set pos:" << QPoint(targetX, targetY) << "align pos:" << alignPos;
 }
 
 POPUPUI_END_NAMESPACE

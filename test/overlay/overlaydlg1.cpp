@@ -34,6 +34,7 @@ void OverlayDlg1::on_btn_show2_clicked() {
             .closeOnClickOutside()
             .setMaskColor(QColor(255, 170, 255, 50))
             .setDraggableArea(dlg->getDraggableTitle())
+            .keepAspectRatio(0, 0.8)
     );
 }
 
