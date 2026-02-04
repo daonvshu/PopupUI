@@ -123,7 +123,7 @@ void DialogMask::resizeTarget() const {
     }
 }
 
-void DialogMask::moveTarget() {
+void DialogMask::moveTarget() const {
     QPoint alignPos;
     bool alignPosValid = false;
     if (props.alignToTarget != nullptr) {
@@ -135,38 +135,53 @@ void DialogMask::moveTarget() {
     int targetY = 0;
     auto parentRect = rect();
     auto dlgSize = targetDlg->size();
-    //horizontal
-    if (props.alignment & Qt::AlignLeft) {
-        targetX = 0;
-        if (alignPosValid) {
-            targetX = qMax(targetX, alignPos.x());
-        }
-    } else if (props.alignment & Qt::AlignRight) {
-        targetX = parentRect.width() - dlgSize.width();
-        if (alignPosValid) {
-            targetX = qMin(targetX, alignPos.x() - dlgSize.width());
-        }
-    } else {
+
+    if (!alignPosValid) {
         targetX = parentRect.width() / 2 - dlgSize.width() / 2;
-        if (alignPosValid) {
-            targetX = qMax(targetX, alignPos.x() - dlgSize.width() / 2);
-        }
-    }
-    //vertical
-    if (props.alignment & Qt::AlignTop) {
-        targetY = 0;
-        if (alignPosValid) {
-            targetY = qMax(targetY, alignPos.y());
-        }
-    } else if (props.alignment & Qt::AlignBottom) {
-        targetY = parentRect.height() - dlgSize.height();
-        if (alignPosValid) {
-            targetY = qMin(targetY, alignPos.y() - dlgSize.height());
-        }
-    } else {
         targetY = parentRect.height() / 2 - dlgSize.height() / 2;
-        if (alignPosValid) {
-            targetY = qMax(targetY, alignPos.y() - dlgSize.height() / 2);
+    } else {
+        switch (props.edgeAlign) {
+            case Qt::LeftEdge:
+                targetX = alignPos.x();
+                break;
+            case Qt::RightEdge:
+                targetX = alignPos.x() - dlgSize.width();
+                break;
+            case Qt::TopEdge:
+                targetY = alignPos.y();
+                break;
+            case Qt::BottomEdge:
+                targetY = alignPos.y() - dlgSize.height();
+                break;
+        }
+        if (props.edgeAlign == Qt::TopEdge || props.edgeAlign == Qt::BottomEdge) {
+            //horizontal
+            if (props.posAlign & Qt::AlignLeft) {
+                targetX = alignPos.x();
+            } else if (props.posAlign & Qt::AlignRight) {
+                targetX = alignPos.x() - dlgSize.width();
+            } else {
+                targetX = alignPos.x() - dlgSize.width() / 2;
+            }
+        } else {
+            //vertical
+            if (props.posAlign & Qt::AlignTop) {
+                targetY = alignPos.y();
+            } else if (props.posAlign & Qt::AlignBottom) {
+                targetY = alignPos.y() - dlgSize.height();
+            } else {
+                targetY = alignPos.y() - dlgSize.height() / 2;
+            }
+        }
+        if (targetX < 0) {
+            targetX = 0;
+        } else if (targetX + dlgSize.width() > parentRect.width()) {
+            targetX = parentRect.width() - dlgSize.width();
+        }
+        if (targetY < 0) {
+            targetY = 0;
+        } else if (targetY + dlgSize.height() > parentRect.height()) {
+            targetY = parentRect.height() - dlgSize.height();
         }
     }
     targetDlg->move(QPoint(targetX, targetY) + props.alignOffset);

@@ -31,7 +31,7 @@ private:
 
 private:
     void resizeTarget() const;
-    void moveTarget();
+    void moveTarget() const;
 };
 
 POPUPUI_END_NAMESPACE

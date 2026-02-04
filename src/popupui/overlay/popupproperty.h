@@ -14,7 +14,8 @@ struct POPUPUI_EXPORT PopupProperty {
     bool boundedDrag = true;
     bool baseMaskVisible = true;
 
-    Qt::Alignment alignment = Qt::AlignCenter;
+    Qt::Alignment posAlign = Qt::AlignHCenter;
+    Qt::Edge edgeAlign = Qt::TopEdge;
     QWidget* alignToTarget = nullptr;
     QPoint alignToPos;
     QPoint alignOffset;
@@ -53,11 +54,13 @@ struct POPUPUI_EXPORT PopupProperty {
         return *this;
     }
 
-    PopupProperty& alignToWidget(QWidget* target, const QPoint& targetPos, Qt::Alignment alignment = Qt::AlignTop | Qt::AlignHCenter, const QPoint& offset = QPoint(0, 0)) {
+    PopupProperty& alignToWidget(QWidget* target, const QPoint& targetPos, Qt::Edge edgeAlign = Qt::TopEdge, Qt::Alignment posAlign = Qt::AlignHCenter, const QPoint& offset = QPoint(0, 0)) {
         this->alignToTarget = target;
         this->alignToPos = targetPos;
-        this->alignment = alignment;
+        this->edgeAlign = edgeAlign;
+        this->posAlign = posAlign;
         this->alignOffset = offset;
+        keepAspectRatio(-1, -1);
         return *this;
     }
 

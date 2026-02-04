@@ -35,6 +35,7 @@ void OverlayDlg1::on_btn_show2_clicked() {
             .setMaskColor(QColor(255, 170, 255, 50))
             .setDraggableArea(dlg->getDraggableTitle())
             .keepAspectRatio(0, 0.8)
+            .alignToWidget(ui.btn_show2, QPoint(0, 0), Qt::RightEdge, Qt::AlignTop)
     );
 }
 
