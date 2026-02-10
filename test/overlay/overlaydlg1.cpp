@@ -32,7 +32,7 @@ void OverlayDlg1::on_btn_show2_clicked() {
         new ParallelPopupAnimation({ new FadePopupAnimation, new ScalePopupAnimation }),
         PopupProperty()
             .closeOnClickOutside()
-            .setMaskColor(QColor(255, 170, 255, 50))
+            //.setMaskColor(QColor(255, 170, 255, 50))
             .setDraggableArea(dlg->getDraggableTitle())
             //.keepAspectRatio(0, 0.8)
             .alignToWidget(ui.btn_show2, /*Qt::AlignRight | Qt::AlignBottom*/[] {

@@ -31,6 +31,7 @@ struct POPUPUI_EXPORT PopupProperty {
 
     PopupProperty& setMaskColor(const QColor& maskColor) {
         this->color = maskColor;
+        showBaseMaskLayer(false);
         return *this;
     }
 

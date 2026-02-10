@@ -16,6 +16,7 @@ struct DialogLayer {
     QWidget* dlgMask;
     PopupAnimation* popupAnim;
     QEventLoop* loop;
+    PopupProperty prop;
 
     DialogLayer()
         : dialog(nullptr)
@@ -24,8 +25,8 @@ struct DialogLayer {
         , loop(nullptr)
     {}
 
-    DialogLayer(QWidget* dialog, QWidget* dlgMask, PopupAnimation* popupAnim, QEventLoop* loop)
-        : dialog(dialog), dlgMask(dlgMask), popupAnim(popupAnim), loop(loop)
+    DialogLayer(QWidget* dialog, QWidget* dlgMask, PopupAnimation* popupAnim, QEventLoop* loop, const PopupProperty& prop)
+        : dialog(dialog), dlgMask(dlgMask), popupAnim(popupAnim), loop(loop), prop(prop)
     {}
 };
 
@@ -73,13 +74,11 @@ void DialogOverlay::showDialog(QWidget* dlg, PopupAnimation* popupAnim, const Po
         qFatal("Call DialogOverlay::registerHostWindow before show!");
     }
     if (d.overlayMask->isHidden()) {
-        if (d.stack.isEmpty()) {
-            if (prop.baseMaskVisible) {
-                d.overlayMask->setVisible(true);
-                if (d.baseMaskAnimationEnabled && popupAnim) {
-                    FadePopupAnimation maskAnim(popupAnim->duration);
-                    maskAnim.enter(d.overlayMask)->start(QPropertyAnimation::DeleteWhenStopped);
-                }
+        if (prop.baseMaskVisible) {
+            d.overlayMask->setVisible(true);
+            if (d.baseMaskAnimationEnabled && popupAnim) {
+                FadePopupAnimation maskAnim(popupAnim->duration);
+                maskAnim.enter(d.overlayMask)->start(QPropertyAnimation::DeleteWhenStopped);
             }
         }
     }
@@ -96,7 +95,7 @@ void DialogOverlay::showDialog(QWidget* dlg, PopupAnimation* popupAnim, const Po
         maskAnim.enter(mask)->start(QPropertyAnimation::DeleteWhenStopped);
     }
 
-    auto layer = new DialogLayer(dlg, mask, popupAnim, nullptr);
+    auto layer = new DialogLayer(dlg, mask, popupAnim, nullptr, prop);
     d.stack.push(layer);
     bindCloseEvent(layer);
 }
@@ -154,7 +153,7 @@ void DialogOverlay::bindCloseEvent(const DialogLayer* layer) {
                 break;
             }
         }
-        if (d.stack.isEmpty()) {
+        if (d.stack.isEmpty() || !d.stack.last()->prop.baseMaskVisible) {
             if (d.baseMaskAnimationEnabled && popupAnim) {
                 FadePopupAnimation maskAnim(popupAnim->duration);
                 auto anim = maskAnim.exit(d.overlayMask);
