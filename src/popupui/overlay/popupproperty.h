@@ -17,7 +17,8 @@ struct POPUPUI_EXPORT PopupProperty {
     Qt::Alignment posAlign = Qt::AlignHCenter;
     Qt::Edge edgeAlign = Qt::TopEdge;
     QWidget* alignToTarget = nullptr;
-    QPoint alignToPos;
+    Qt::Alignment alignToPos = Qt::AlignLeft | Qt::AlignBottom;
+    std::function<QPoint()> alignToPosProvider;
     QPoint alignOffset;
 
     double widthAspectRatio = -1;
@@ -54,13 +55,21 @@ struct POPUPUI_EXPORT PopupProperty {
         return *this;
     }
 
-    PopupProperty& alignToWidget(QWidget* target, const QPoint& targetPos, Qt::Edge edgeAlign = Qt::TopEdge, Qt::Alignment posAlign = Qt::AlignHCenter, const QPoint& offset = QPoint(0, 0)) {
+    PopupProperty& alignToWidget(QWidget* target, Qt::Alignment targetPos, Qt::Edge edgeAlign = Qt::TopEdge, Qt::Alignment posAlign = Qt::AlignHCenter, const QPoint& offset = QPoint(0, 0)) {
         this->alignToTarget = target;
         this->alignToPos = targetPos;
         this->edgeAlign = edgeAlign;
         this->posAlign = posAlign;
         this->alignOffset = offset;
-        keepAspectRatio(-1, -1);
+        return *this;
+    }
+
+    PopupProperty& alignToWidget(QWidget* target, const std::function<QPoint()>& targetPosProvider, Qt::Edge edgeAlign = Qt::TopEdge, Qt::Alignment posAlign = Qt::AlignHCenter, const QPoint& offset = QPoint(0, 0)) {
+        this->alignToTarget = target;
+        this->alignToPosProvider = targetPosProvider;
+        this->edgeAlign = edgeAlign;
+        this->posAlign = posAlign;
+        this->alignOffset = offset;
         return *this;
     }
 

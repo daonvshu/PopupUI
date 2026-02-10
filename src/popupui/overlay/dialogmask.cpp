@@ -127,7 +127,28 @@ void DialogMask::moveTarget() const {
     QPoint alignPos;
     bool alignPosValid = false;
     if (props.alignToTarget != nullptr) {
-        alignPos = props.alignToTarget->mapToGlobal(props.alignToPos) - this->mapToGlobal(QPoint(0, 0));
+        QPoint targetPos(0, 0);
+        if (props.alignToPosProvider) {
+            targetPos = props.alignToPosProvider();
+        } else {
+            auto rect = props.alignToTarget->rect();
+            auto alignment = props.alignToPos;
+            // horizontal
+            if (alignment & Qt::AlignLeft)
+                targetPos.setX(rect.left());
+            else if (alignment & Qt::AlignRight)
+                targetPos.setX(rect.right());
+            else if (alignment & Qt::AlignHCenter)
+                targetPos.setX(rect.center().x());
+            // vertical
+            if (alignment & Qt::AlignTop)
+                targetPos.setY(rect.top());
+            else if (alignment & Qt::AlignBottom)
+                targetPos.setY(rect.bottom());
+            else if (alignment & Qt::AlignVCenter)
+                targetPos.setY(rect.center().y());
+        }
+        alignPos = props.alignToTarget->mapToGlobal(targetPos) - this->mapToGlobal(QPoint(0, 0));
         alignPosValid = true;
     }
 
