@@ -1,4 +1,4 @@
-project(DialogOverlay)
+project(DialogAnimations)
 
 set(CMAKE_AUTOMOC ON)
 
@@ -18,19 +18,20 @@ else ()
 endif ()
 
 add_library(${PROJECT_NAME} ${_build_type}
-    dialogoverlay.h
-    dialogoverlay.cpp
-    dialogmask.h
-    dialogmask.cpp
+    fadepopupanimation.h
+    fadepopupanimation.cpp
+    scalepopupanimation.h
+    scalepopupanimation.cpp
+    slidepopupanimation.h
+    slidepopupanimation.cpp
+    parallelpopupanimation.h
+    parallelpopupanimation.cpp
 )
 
-target_link_libraries(${PROJECT_NAME}
-    PUBLIC
-        Qt${QT_VERSION_MAJOR}::Core
-        Qt${QT_VERSION_MAJOR}::Gui
-        Qt${QT_VERSION_MAJOR}::Widgets
-    PRIVATE
-        DialogAnimations
+target_link_libraries(${PROJECT_NAME} PUBLIC
+    Qt${QT_VERSION_MAJOR}::Core
+    Qt${QT_VERSION_MAJOR}::Gui
+    Qt${QT_VERSION_MAJOR}::Widgets
 )
 
 if (POPUPUI_BUILD_STATIC)
@@ -47,7 +48,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 include(CMakePackageConfigHelpers)
 
 install(TARGETS ${PROJECT_NAME}
-    EXPORT DialogOverlayTargets
+    EXPORT DialogAnimationsTargets
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
     RUNTIME DESTINATION bin
@@ -55,7 +56,7 @@ install(TARGETS ${PROJECT_NAME}
 )
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION include/popupui/overlay
+    DESTINATION include/popupui/animations
     FILES_MATCHING PATTERN "*.h"
 )
 
@@ -64,18 +65,18 @@ install(DIRECTORY ${CMAKE_SOURCE_DIR}/src/popupui/comm/
     FILES_MATCHING PATTERN "*.h"
 )
 
-configure_package_config_file(${CMAKE_SOURCE_DIR}/cmake/DialogOverlayConfig.cmake.in
-    "${CMAKE_CURRENT_BINARY_DIR}/DialogOverlayConfig.cmake"
-    INSTALL_DESTINATION lib/cmake/DialogOverlay
+configure_package_config_file(${CMAKE_SOURCE_DIR}/cmake/DialogAnimationsConfig.cmake.in
+    "${CMAKE_CURRENT_BINARY_DIR}/DialogAnimationsConfig.cmake"
+    INSTALL_DESTINATION lib/cmake/DialogAnimations
 )
 
 install(FILES
-    "${CMAKE_CURRENT_BINARY_DIR}/DialogOverlayConfig.cmake"
-    DESTINATION lib/cmake/DialogOverlay
+    "${CMAKE_CURRENT_BINARY_DIR}/DialogAnimationsConfig.cmake"
+    DESTINATION lib/cmake/DialogAnimations
 )
 
-install(EXPORT DialogOverlayTargets
-    FILE DialogOverlayTargets.cmake
+install(EXPORT DialogAnimationsTargets
+    FILE DialogAnimationsTargets.cmake
     NAMESPACE PopupUI::
-    DESTINATION lib/cmake/DialogOverlay
+    DESTINATION lib/cmake/DialogAnimations
 )

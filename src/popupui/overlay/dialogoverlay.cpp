@@ -4,10 +4,10 @@
 #include <qpropertyanimation.h>
 #include <qeventloop.h>
 
-#include "animations/fadepopupanimation.h"
-#include "animations/parallelpopupanimation.h"
-#include "animations/scalepopupanimation.h"
-#include "animations/slidepopupanimation.h"
+#include "popupui/animations/fadepopupanimation.h"
+#include "popupui/animations/parallelpopupanimation.h"
+#include "popupui/animations/scalepopupanimation.h"
+#include "popupui/animations/slidepopupanimation.h"
 
 POPUPUI_BEGIN_NAMESPACE
 

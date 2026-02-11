@@ -5,7 +5,9 @@ project(PopupUI VERSION 1.0.1)
 option(POPUPUI_BUILD_STATIC "Build static libraries" ON)
 option(POPUPUI_BUILD_TEST "Build tests" OFF)
 
+add_subdirectory(src/popupui/animations)
 add_subdirectory(src/popupui/overlay)
+add_subdirectory(src/popupui/shadow)
 if (POPUPUI_BUILD_TEST)
     add_subdirectory(test)
 endif()
@@ -14,7 +16,9 @@ include(CMakePackageConfigHelpers)
 
 add_custom_target(PopupUI ALL)
 add_dependencies(PopupUI
+    DialogAnimations
     DialogOverlay
+    DialogShadow
 )
 
 write_basic_package_version_file(

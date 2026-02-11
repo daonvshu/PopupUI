@@ -1,4 +1,4 @@
-project(DialogOverlay)
+project(DialogShadow)
 
 set(CMAKE_AUTOMOC ON)
 
@@ -18,10 +18,10 @@ else ()
 endif ()
 
 add_library(${PROJECT_NAME} ${_build_type}
-    dialogoverlay.h
-    dialogoverlay.cpp
-    dialogmask.h
-    dialogmask.cpp
+    shadowwidget.h
+    shadowwidget.cpp
+    basepopupdlg.h
+    basepopupdlg.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -47,7 +47,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 include(CMakePackageConfigHelpers)
 
 install(TARGETS ${PROJECT_NAME}
-    EXPORT DialogOverlayTargets
+    EXPORT DialogShadowTargets
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
     RUNTIME DESTINATION bin
@@ -55,7 +55,7 @@ install(TARGETS ${PROJECT_NAME}
 )
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-    DESTINATION include/popupui/overlay
+    DESTINATION include/popupui/shadow
     FILES_MATCHING PATTERN "*.h"
 )
 
@@ -64,18 +64,18 @@ install(DIRECTORY ${CMAKE_SOURCE_DIR}/src/popupui/comm/
     FILES_MATCHING PATTERN "*.h"
 )
 
-configure_package_config_file(${CMAKE_SOURCE_DIR}/cmake/DialogOverlayConfig.cmake.in
-    "${CMAKE_CURRENT_BINARY_DIR}/DialogOverlayConfig.cmake"
-    INSTALL_DESTINATION lib/cmake/DialogOverlay
+configure_package_config_file(${CMAKE_SOURCE_DIR}/cmake/DialogShadowConfig.cmake.in
+    "${CMAKE_CURRENT_BINARY_DIR}/DialogShadowConfig.cmake"
+    INSTALL_DESTINATION lib/cmake/DialogShadow
 )
 
 install(FILES
-    "${CMAKE_CURRENT_BINARY_DIR}/DialogOverlayConfig.cmake"
-    DESTINATION lib/cmake/DialogOverlay
+    "${CMAKE_CURRENT_BINARY_DIR}/DialogShadowConfig.cmake"
+    DESTINATION lib/cmake/DialogShadow
 )
 
-install(EXPORT DialogOverlayTargets
-    FILE DialogOverlayTargets.cmake
+install(EXPORT DialogShadowTargets
+    FILE DialogShadowTargets.cmake
     NAMESPACE PopupUI::
-    DESTINATION lib/cmake/DialogOverlay
+    DESTINATION lib/cmake/DialogShadow
 )
