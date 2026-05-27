@@ -3,6 +3,8 @@
 #include <popupui/comm/global.h>
 #include <qwidget.h>
 
+#include <functional>
+
 POPUPUI_BEGIN_NAMESPACE
 
 struct POPUPUI_EXPORT PopupProperty {
