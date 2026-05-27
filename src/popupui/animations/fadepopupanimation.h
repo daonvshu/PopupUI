@@ -2,7 +2,7 @@
 
 #include <qobject.h>
 
-#include "../popupanimation.h"
+#include "../overlay/popupanimation.h"
 
 POPUPUI_BEGIN_NAMESPACE
 

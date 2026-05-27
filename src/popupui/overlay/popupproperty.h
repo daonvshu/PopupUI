@@ -3,6 +3,8 @@
 #include <popupui/comm/global.h>
 #include <qwidget.h>
 
+#include <functional>
+
 POPUPUI_BEGIN_NAMESPACE
 
 /**
@@ -201,6 +203,9 @@ class POPUPUI_EXPORT PopupProperty {
      * To set both width and height aspect ratios, use the `keepAspectRatio` method of the PopupProperty struct.
      */
     double heightAspectRatio = -1;
+
+    friend class DialogOverlay;
+    friend class DialogMask;
 
 public:
     /**

@@ -2,8 +2,8 @@
 
 #include <qobject.h>
 
-#include "../popupanimation.h"
-#include "../slidedirection.h"
+#include "../overlay/popupanimation.h"
+#include "../overlay/slidedirection.h"
 
 POPUPUI_BEGIN_NAMESPACE
 
