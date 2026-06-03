@@ -13,6 +13,9 @@ OverlayTest::OverlayTest(QWidget* parent)
     DialogOverlay::registerHostWindow(this);
     //DialogOverlay::enableMaskAnimation(false);
     DialogOverlay::setFadeAnimationDefault(150);
+    //DialogOverlay::setScaleAnimationDefault(1500);
+    //DialogOverlay::setSlideAnimationDefault(1500);
+    //DialogOverlay::enablePopupAnimation(false);
 }
 
 void OverlayTest::on_btn_show_clicked() {

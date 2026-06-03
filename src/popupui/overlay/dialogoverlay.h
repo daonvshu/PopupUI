@@ -17,6 +17,7 @@ class POPUPUI_EXPORT DialogOverlay {
 public:
     static void registerHostWindow(QWidget* host, const QColor& backgroundMaskColor = QColor(0, 0, 0, 128));
     static void enableMaskAnimation(bool enable);
+    static void enablePopupAnimation(bool enable);
     static void setFadeAnimationDefault(int duration);
     static void setScaleAnimationDefault(int duration, qreal scaleFactor = 0.8);
     static void setSlideAnimationDefault(int duration, int fromOffset = 0, SlideDirection direction = SlideDirection::FromBottom);
@@ -37,9 +38,10 @@ private:
     static DialogOverlayData d;
 
 private:
-    static void bindCloseEvent(const DialogLayer* layer);
-    static void closeTarget(const DialogLayer* layer);
+    static void bindCloseEvent(DialogLayer* layer);
+    static void closeTarget(DialogLayer* layer);
     static PopupAnimation* getAnimation(PopupAnimationTypes types);
+    static bool shouldPlayAnimation(const PopupAnimation* popupAnim);
 };
 
 POPUPUI_END_NAMESPACE
