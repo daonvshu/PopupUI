@@ -6,7 +6,7 @@
 
 1. 在CMakeLists.txt中导入库
 ```cmake
-find_package(PopupUI 1.0.0 REQUIRED COMPONENTS DialogOverlay)
+find_package(PopupUI 1.1.0 REQUIRED COMPONENTS DialogOverlay)
 
 target_link_libraries(${PROJECT_NAME}
     PopupUI::DialogOverlay
@@ -40,6 +40,26 @@ DialogOverlay::showDialog(dlg);
 ```c++
 MyDialog dlg;
 DialogOverlay::showDialogExec(dlg);
+```
+
+多个宿主窗口可注册不同 id。未指定宿主 id 时，仍使用第一个注册的宿主窗口：
+```c++
+DialogOverlay::registerHostWindow(this);
+DialogOverlay::registerHostWindow(secondaryWindow, QStringLiteral("secondary"));
+
+auto dlg = new MyDialog;
+DialogOverlay::showDialog(dlg, PopupAnimationType::Fade,
+    PopupProperty(QStringLiteral("secondary")));
+DialogOverlay::closeTopDialog(QStringLiteral("secondary"));
+```
+
+宿主窗口销毁后，可在显示前检查其是否仍可用：
+```c++
+const auto hostId = QStringLiteral("secondary");
+if (DialogOverlay::isHostWindowAvailable(hostId)) {
+    auto dlg = new MyDialog;
+    DialogOverlay::showDialog(dlg, PopupAnimationType::Fade, PopupProperty(hostId));
+}
 ```
 
 4. 显示过渡动画
@@ -78,13 +98,12 @@ DialogOverlay::showDialog(dlg, PopupAnimationType::Fade | PopupAnimationType::Sl
 ```c++
 auto dlg = new MyDialog;
 DialogOverlay::showDialog(dlg, PopupAnimationType::Fade,
-    PopupProperty()
+    PopupProperty(QStringLiteral("secondary")) //指定宿主窗口，不指定时使用第一个注册的宿主窗口
       .closeOnClickOutside(true) //是否点击阴影层关闭对话框
       .setMaskColor(QColor(255, 170, 255, 50)) //多个对话框同时显示时，设置当前对话框层的阴影，不影响其他层
       .transparentMouseEvent(true) //阴影层是否鼠标穿透
       .setDeleteOnClose(true) //是否关闭时删除对象
-      .keepCenterOnResized(true) //是否始终居中显示
-      .setDraggableArea(dlg->getDraggableTitleWidget(), true) //设置可拖拽的控件，并控制在应用窗口范围内拖动，keepCenterOnResized会自动标记为false
+      .setDraggableArea(dlg->getDraggableTitleWidget(), true) //设置可拖拽的控件，并控制在应用窗口范围内拖动
       .showBaseMaskLayer(true) //是否显示基础阴影层
 );
 ```
