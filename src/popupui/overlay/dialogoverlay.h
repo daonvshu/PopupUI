@@ -1,5 +1,6 @@
 #pragma once
 
+#include <qstring.h>
 #include <qwidget.h>
 #include <popupui/comm/global.h>
 
@@ -16,6 +17,8 @@ class POPUPUI_EXPORT DialogOverlay {
 
 public:
     static void registerHostWindow(QWidget* host, const QColor& backgroundMaskColor = QColor(0, 0, 0, 128));
+    static void registerHostWindow(QWidget* host, const QString& hostId, const QColor& backgroundMaskColor = QColor(0, 0, 0, 128));
+    static bool isHostWindowAvailable(const QString& hostId = QString());
     static void enableMaskAnimation(bool enable);
     static void enablePopupAnimation(bool enable);
     static void setFadeAnimationDefault(int duration);
@@ -27,8 +30,8 @@ public:
     static void showDialogExec(QWidget& dlg, PopupAnimation* popupAnim = nullptr, const PopupProperty& prop = PopupProperty());
     static void showDialogExec(QWidget& dlg, PopupAnimationTypes types = PopupAnimationType::None, const PopupProperty& prop = PopupProperty());
 
-    static void closeTopDialog();
-    static void closeAll();
+    static void closeTopDialog(const QString& hostId = QString());
+    static void closeAll(const QString& hostId = QString());
 
 public:
     DialogOverlay() = delete;

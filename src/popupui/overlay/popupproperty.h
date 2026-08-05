@@ -1,6 +1,7 @@
 #pragma once
 
 #include <popupui/comm/global.h>
+#include <qstring.h>
 #include <qwidget.h>
 
 #include <functional>
@@ -15,6 +16,7 @@ struct POPUPUI_EXPORT PopupProperty {
     QWidget* draggableWidget = nullptr;
     bool boundedDrag = true;
     bool baseMaskVisible = true;
+    QString hostWindowId;
 
     Qt::Alignment posAlign = Qt::AlignHCenter;
     Qt::Edge edgeAlign = Qt::TopEdge;
@@ -25,6 +27,11 @@ struct POPUPUI_EXPORT PopupProperty {
 
     double widthAspectRatio = -1;
     double heightAspectRatio = -1;
+
+    PopupProperty() = default;
+    explicit PopupProperty(const QString& hostId)
+        : hostWindowId(hostId)
+    {}
 
     PopupProperty& closeOnClickOutside(bool enabled = true) {
         this->closable = enabled;

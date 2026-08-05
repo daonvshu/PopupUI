@@ -1,5 +1,6 @@
 #pragma once
 
+#include <qpointer.h>
 #include <qwidget.h>
 
 #include "ui_overlaytest.h"
@@ -12,7 +13,11 @@ public:
 
 private slots:
     void on_btn_show_clicked();
+    void on_btn_create_dynamic_host_clicked();
+    void on_btn_show_dynamic_host_clicked();
+    void on_btn_destroy_dynamic_host_clicked();
 
 private:
     Ui::OverlayTest ui;
+    QPointer<QWidget> dynamicHost;
 };

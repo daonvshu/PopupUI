@@ -26,6 +26,45 @@
     <string>show</string>
    </property>
   </widget>
+  <widget class="QPushButton" name="btn_create_dynamic_host">
+   <property name="geometry">
+    <rect>
+     <x>90</x>
+     <y>210</y>
+     <width>120</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>create host</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btn_show_dynamic_host">
+   <property name="geometry">
+    <rect>
+     <x>220</x>
+     <y>210</y>
+     <width>120</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>show dynamic</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btn_destroy_dynamic_host">
+   <property name="geometry">
+    <rect>
+     <x>350</x>
+     <y>210</y>
+     <width>120</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>destroy host</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>

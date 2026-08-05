@@ -1,6 +1,7 @@
 #include "dialogoverlay.h"
 
 #include <qpointer.h>
+#include <qhash.h>
 #include <qstack.h>
 #include <qpropertyanimation.h>
 #include <qeventloop.h>
@@ -13,11 +14,14 @@
 
 POPUPUI_BEGIN_NAMESPACE
 
+struct DialogHostWindow;
+
 struct DialogLayer {
     QPointer<QWidget> dialog;
     QPointer<QWidget> dlgMask;
     PopupAnimation* popupAnim;
     QEventLoop* loop;
+    DialogHostWindow* hostWindow;
     bool closing;
     PopupProperty prop;
 
@@ -26,18 +30,24 @@ struct DialogLayer {
         , dlgMask(nullptr)
         , popupAnim(nullptr)
         , loop(nullptr)
+        , hostWindow(nullptr)
         , closing(false)
     {}
 
-    DialogLayer(QWidget* dialog, QWidget* dlgMask, PopupAnimation* popupAnim, QEventLoop* loop, const PopupProperty& prop)
-        : dialog(dialog), dlgMask(dlgMask), popupAnim(popupAnim), loop(loop), closing(false), prop(prop)
+    DialogLayer(QWidget* dialog, QWidget* dlgMask, PopupAnimation* popupAnim, QEventLoop* loop, DialogHostWindow* hostWindow, const PopupProperty& prop)
+        : dialog(dialog), dlgMask(dlgMask), popupAnim(popupAnim), loop(loop), hostWindow(hostWindow), closing(false), prop(prop)
     {}
 };
 
-struct DialogOverlayData {
-    QWidget* hostWindow = nullptr;
-    QWidget* overlayMask = nullptr;
+struct DialogHostWindow {
+    QPointer<QWidget> hostWindow;
+    QPointer<QWidget> overlayMask;
     QStack<DialogLayer*> stack;
+};
+
+struct DialogOverlayData {
+    QHash<QString, DialogHostWindow*> hostWindows;
+    QString defaultHostId;
     bool baseMaskAnimationEnabled = true;
     bool popupAnimationEnabled = true;
 
@@ -57,10 +67,32 @@ static void finalizeDialogClose(const QPointer<QWidget>& dlg) {
 }
 
 void DialogOverlay::registerHostWindow(QWidget* host, const QColor& backgroundMaskColor) {
-    d.hostWindow = host;
-    d.overlayMask = new DialogMask(host, nullptr, PopupProperty().setMaskColor(backgroundMaskColor));
-    d.overlayMask->raise();
-    d.overlayMask->setVisible(false);
+    registerHostWindow(host, QString(), backgroundMaskColor);
+}
+
+void DialogOverlay::registerHostWindow(QWidget* host, const QString& hostId, const QColor& backgroundMaskColor) {
+    if (!host) {
+        qFatal("DialogOverlay host window cannot be null!");
+    }
+    if (d.hostWindows.contains(hostId)) {
+        qFatal("DialogOverlay host id is already registered!");
+    }
+
+    auto hostWindow = new DialogHostWindow;
+    hostWindow->hostWindow = host;
+    hostWindow->overlayMask = new DialogMask(host, nullptr, PopupProperty().setMaskColor(backgroundMaskColor));
+    hostWindow->overlayMask->raise();
+    hostWindow->overlayMask->setVisible(false);
+    if (d.hostWindows.isEmpty()) {
+        d.defaultHostId = hostId;
+    }
+    d.hostWindows.insert(hostId, hostWindow);
+}
+
+bool DialogOverlay::isHostWindowAvailable(const QString& hostId) {
+    const auto selectedHostId = hostId.isEmpty() ? d.defaultHostId : hostId;
+    const auto hostWindow = d.hostWindows.value(selectedHostId, nullptr);
+    return hostWindow && hostWindow->hostWindow && hostWindow->overlayMask;
 }
 
 void DialogOverlay::enableMaskAnimation(bool enable) {
@@ -91,21 +123,23 @@ bool DialogOverlay::shouldPlayAnimation(const PopupAnimation* popupAnim) {
 }
 
 void DialogOverlay::showDialog(QWidget* dlg, PopupAnimation* popupAnim, const PopupProperty& prop) {
-    if (d.hostWindow == nullptr) {
+    const auto selectedHostId = prop.hostWindowId.isEmpty() ? d.defaultHostId : prop.hostWindowId;
+    auto hostWindow = d.hostWindows.value(selectedHostId, nullptr);
+    if (!hostWindow || !hostWindow->hostWindow || !hostWindow->overlayMask) {
         qFatal("Call DialogOverlay::registerHostWindow before show!");
     }
-    if (d.overlayMask->isHidden()) {
+    if (hostWindow->overlayMask->isHidden()) {
         if (prop.baseMaskVisible) {
-            d.overlayMask->setVisible(true);
+            hostWindow->overlayMask->setVisible(true);
             if (d.baseMaskAnimationEnabled && shouldPlayAnimation(popupAnim)) {
                 FadePopupAnimation maskAnim(popupAnim->duration);
-                maskAnim.enter(d.overlayMask)->start(QPropertyAnimation::DeleteWhenStopped);
+                maskAnim.enter(hostWindow->overlayMask)->start(QPropertyAnimation::DeleteWhenStopped);
             }
         }
     }
-    dlg->setParent(d.hostWindow);
+    dlg->setParent(hostWindow->hostWindow);
 
-    auto mask = new DialogMask(d.hostWindow, dlg, prop);
+    auto mask = new DialogMask(hostWindow->hostWindow, dlg, prop);
     mask->show();
     dlg->show();
     dlg->raise();
@@ -116,8 +150,8 @@ void DialogOverlay::showDialog(QWidget* dlg, PopupAnimation* popupAnim, const Po
         maskAnim.enter(mask)->start(QPropertyAnimation::DeleteWhenStopped);
     }
 
-    auto layer = new DialogLayer(dlg, mask, popupAnim, nullptr, prop);
-    d.stack.push(layer);
+    auto layer = new DialogLayer(dlg, mask, popupAnim, nullptr, hostWindow, prop);
+    hostWindow->stack.push(layer);
     bindCloseEvent(layer);
 }
 
@@ -130,7 +164,8 @@ void DialogOverlay::showDialogExec(QWidget& dlg, PopupAnimation* popupAnim, cons
     showProp.deleteOnClose = false;
     QEventLoop loop;
     showDialog(&dlg, popupAnim, showProp);
-    d.stack.top()->loop = &loop;
+    const auto selectedHostId = showProp.hostWindowId.isEmpty() ? d.defaultHostId : showProp.hostWindowId;
+    d.hostWindows.value(selectedHostId)->stack.top()->loop = &loop;
     loop.exec();
 }
 
@@ -138,40 +173,45 @@ void DialogOverlay::showDialogExec(QWidget& dlg, PopupAnimationTypes types, cons
     showDialogExec(dlg, getAnimation(types), prop);
 }
 
-void DialogOverlay::closeTopDialog() {
-    if (d.stack.isEmpty()) return;
-    auto layer = d.stack.pop();
+void DialogOverlay::closeTopDialog(const QString& hostId) {
+    const auto selectedHostId = hostId.isEmpty() ? d.defaultHostId : hostId;
+    auto hostWindow = d.hostWindows.value(selectedHostId, nullptr);
+    if (!hostWindow || hostWindow->stack.isEmpty()) return;
+    auto layer = hostWindow->stack.pop();
     closeTarget(layer);
-    if (d.stack.isEmpty()) {
-        d.overlayMask->setVisible(false);
-        d.overlayMask->setWindowOpacity(1);
+    if (hostWindow->stack.isEmpty() && hostWindow->overlayMask) {
+        hostWindow->overlayMask->setVisible(false);
+        hostWindow->overlayMask->setWindowOpacity(1);
     }
 }
 
-void DialogOverlay::closeAll() {
-    if (d.stack.isEmpty()) {
+void DialogOverlay::closeAll(const QString& hostId) {
+    const auto selectedHostId = hostId.isEmpty() ? d.defaultHostId : hostId;
+    auto hostWindow = d.hostWindows.value(selectedHostId, nullptr);
+    if (!hostWindow || hostWindow->stack.isEmpty()) {
         return;
     }
-    while (!d.stack.isEmpty()) {
-        auto layer = d.stack.pop();
+    while (!hostWindow->stack.isEmpty()) {
+        auto layer = hostWindow->stack.pop();
         closeTarget(layer);
     }
-    if (d.overlayMask) {
-        d.overlayMask->setVisible(false);
-        d.overlayMask->setWindowOpacity(1);
+    if (hostWindow->overlayMask) {
+        hostWindow->overlayMask->setVisible(false);
+        hostWindow->overlayMask->setWindowOpacity(1);
     }
 }
 
 void DialogOverlay::bindCloseEvent(DialogLayer* layer) {
+    auto hostWindow = layer->hostWindow;
     auto mask = layer->dlgMask;
-    if (!mask) {
+    if (!hostWindow || !mask) {
         return;
     }
     auto maskWidget = qobject_cast<DialogMask*>(mask.data());
     if (!maskWidget) {
         return;
     }
-    QObject::connect(maskWidget, &DialogMask::requestClose, maskWidget, [layer] {
+    QObject::connect(maskWidget, &DialogMask::requestClose, maskWidget, [layer, hostWindow] {
         if (layer->closing) {
             return;
         }
@@ -179,27 +219,33 @@ void DialogOverlay::bindCloseEvent(DialogLayer* layer) {
         const auto animDuration = shouldPlayAnimation(popupAnim) ? popupAnim->duration : 0;
         const auto shouldAnimateBaseMask = d.baseMaskAnimationEnabled && animDuration > 0;
         auto dlg = layer->dialog;
-        for (int i = d.stack.size() - 1; i >= 0; --i) {
-            if (d.stack[i]->dialog == dlg) {
+        for (int i = hostWindow->stack.size() - 1; i >= 0; --i) {
+            if (hostWindow->stack[i]->dialog == dlg) {
                 closeTarget(layer);
-                d.stack.remove(i);
+                hostWindow->stack.remove(i);
                 break;
             }
         }
-        if (d.stack.isEmpty() || !d.stack.last()->prop.baseMaskVisible) {
+        if (hostWindow->stack.isEmpty() || !hostWindow->stack.last()->prop.baseMaskVisible) {
             if (shouldAnimateBaseMask) {
                 FadePopupAnimation maskAnim(animDuration);
-                auto anim = maskAnim.exit(d.overlayMask);
+                auto overlayMask = hostWindow->overlayMask;
+                auto anim = overlayMask ? maskAnim.exit(overlayMask) : nullptr;
                 if (anim) {
-                    QObject::connect(anim, &QAbstractAnimation::finished, [] {
-                        d.overlayMask->setVisible(false);
-                        d.overlayMask->setWindowOpacity(1);
+                    QObject::connect(anim, &QAbstractAnimation::finished, [overlayMask] {
+                        if (!overlayMask) {
+                            return;
+                        }
+                        overlayMask->setVisible(false);
+                        overlayMask->setWindowOpacity(1);
                     });
                     anim->start(QPropertyAnimation::DeleteWhenStopped);
                     return;
                 }
             }
-            d.overlayMask->setVisible(false);
+            if (hostWindow->overlayMask) {
+                hostWindow->overlayMask->setVisible(false);
+            }
         }
     });
 }
