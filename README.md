@@ -53,6 +53,8 @@ DialogOverlay::showDialog(dlg, PopupAnimationType::Fade,
 DialogOverlay::closeTopDialog(QStringLiteral("secondary"));
 ```
 
+重复注册同一个 id 时，新宿主窗口会替换旧宿主窗口。
+
 宿主窗口销毁后，可在显示前检查其是否仍可用：
 ```c++
 const auto hostId = QStringLiteral("secondary");
