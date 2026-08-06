@@ -74,8 +74,10 @@ void DialogOverlay::registerHostWindow(QWidget* host, const QString& hostId, con
     if (!host) {
         qFatal("DialogOverlay host window cannot be null!");
     }
-    if (d.hostWindows.contains(hostId)) {
-        qFatal("DialogOverlay host id is already registered!");
+    auto previousHostWindow = d.hostWindows.value(hostId, nullptr);
+    if (previousHostWindow) {
+        closeAll(hostId);
+        delete previousHostWindow;
     }
 
     auto hostWindow = new DialogHostWindow;

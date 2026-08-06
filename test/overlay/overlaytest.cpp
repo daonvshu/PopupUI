@@ -63,4 +63,5 @@ void OverlayTest::on_btn_destroy_dynamic_host_clicked() {
     delete dynamicHost;
     Q_ASSERT(!dynamicHost);
     Q_ASSERT(!DialogOverlay::isHostWindowAvailable(QStringLiteral("dynamic-host")));
+    ui.btn_create_dynamic_host->setEnabled(true);
 }
