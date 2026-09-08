@@ -91,6 +91,14 @@ class POPUPUI_EXPORT PopupProperty {
      * @note This property can be modified using the `showBaseMaskLayer` method of the PopupProperty class.
      */
     bool baseMaskVisible = true;
+
+    /**
+     * @brief Identifies the host window that displays the popup.
+     *
+     * This identifier selects a host window previously registered with
+     * DialogOverlay::registerHostWindow. When it is empty, the popup is shown
+     * in the default host window.
+     */
     QString hostWindowId;
 
     /**
@@ -206,15 +214,15 @@ class POPUPUI_EXPORT PopupProperty {
      */
     double heightAspectRatio = -1;
 
+    friend class DialogOverlay;
+    friend class DialogMask;
+
+public:
     PopupProperty() = default;
     explicit PopupProperty(const QString& hostId)
         : hostWindowId(hostId)
     {}
 
-    friend class DialogOverlay;
-    friend class DialogMask;
-
-public:
     /**
      * @brief Enables or disables the close on click outside feature for the popup.
      *

@@ -6,10 +6,10 @@
 #include <qpainter.h>
 #include <qdebug.h>
 
-#include <popupui/overlay/animations/fadepopupanimation.h>
-#include <popupui/overlay/animations/scalepopupanimation.h>
-#include <popupui/overlay/animations/slidepopupanimation.h>
-#include <popupui/overlay/animations/parallelpopupanimation.h>
+#include <popupui/animations/fadepopupanimation.h>
+#include <popupui/animations/scalepopupanimation.h>
+#include <popupui/animations/slidepopupanimation.h>
+#include <popupui/animations/parallelpopupanimation.h>
 
 using namespace PopupUI;
 

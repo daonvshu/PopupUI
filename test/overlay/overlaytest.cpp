@@ -2,7 +2,7 @@
 #include "overlaydlg1.h"
 
 #include <popupui/overlay/dialogoverlay.h>
-#include <popupui/overlay/animations/fadepopupanimation.h>
+#include <popupui/animations/fadepopupanimation.h>
 #include <qdebug.h>
 
 using namespace PopupUI;
