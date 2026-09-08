@@ -1,5 +1,6 @@
 #pragma once
 
+#include <qstring.h>
 #include <qwidget.h>
 #include <popupui/comm/global.h>
 
@@ -16,7 +17,10 @@ class POPUPUI_EXPORT DialogOverlay {
 
 public:
     static void registerHostWindow(QWidget* host, const QColor& backgroundMaskColor = QColor(0, 0, 0, 128));
+    static void registerHostWindow(QWidget* host, const QString& hostId, const QColor& backgroundMaskColor = QColor(0, 0, 0, 128));
+    static bool isHostWindowAvailable(const QString& hostId = QString());
     static void enableMaskAnimation(bool enable);
+    static void enablePopupAnimation(bool enable);
     static void setFadeAnimationDefault(int duration);
     static void setScaleAnimationDefault(int duration, qreal scaleFactor = 0.8);
     static void setSlideAnimationDefault(int duration, int fromOffset = 0, SlideDirection direction = SlideDirection::FromBottom);
@@ -26,8 +30,8 @@ public:
     static void showDialogExec(QWidget& dlg, PopupAnimation* popupAnim = nullptr, const PopupProperty& prop = PopupProperty());
     static void showDialogExec(QWidget& dlg, PopupAnimationTypes types = PopupAnimationType::None, const PopupProperty& prop = PopupProperty());
 
-    static void closeTopDialog();
-    static void closeAll();
+    static void closeTopDialog(const QString& hostId = QString());
+    static void closeAll(const QString& hostId = QString());
 
 public:
     DialogOverlay() = delete;
@@ -37,9 +41,10 @@ private:
     static DialogOverlayData d;
 
 private:
-    static void bindCloseEvent(const DialogLayer* layer);
-    static void closeTarget(const DialogLayer* layer);
+    static void bindCloseEvent(DialogLayer* layer);
+    static void closeTarget(DialogLayer* layer);
     static PopupAnimation* getAnimation(PopupAnimationTypes types);
+    static bool shouldPlayAnimation(const PopupAnimation* popupAnim);
 };
 
 POPUPUI_END_NAMESPACE

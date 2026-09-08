@@ -31,6 +31,7 @@ DialogMask::DialogMask(QWidget* parent, QWidget* dlg, const PopupProperty& props
 void DialogMask::unbindEvent() {
     if (targetDlg) {
         targetDlg->removeEventFilter(this);
+        targetDlg = nullptr;
     }
 }
 

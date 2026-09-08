@@ -1,6 +1,7 @@
 #pragma once
 
 #include <popupui/comm/global.h>
+#include <qstring.h>
 #include <qwidget.h>
 
 #include <functional>
@@ -90,6 +91,7 @@ class POPUPUI_EXPORT PopupProperty {
      * @note This property can be modified using the `showBaseMaskLayer` method of the PopupProperty class.
      */
     bool baseMaskVisible = true;
+    QString hostWindowId;
 
     /**
      * @brief Specifies the alignment of the popup relative to its target widget.
@@ -203,6 +205,11 @@ class POPUPUI_EXPORT PopupProperty {
      * To set both width and height aspect ratios, use the `keepAspectRatio` method of the PopupProperty struct.
      */
     double heightAspectRatio = -1;
+
+    PopupProperty() = default;
+    explicit PopupProperty(const QString& hostId)
+        : hostWindowId(hostId)
+    {}
 
     friend class DialogOverlay;
     friend class DialogMask;
