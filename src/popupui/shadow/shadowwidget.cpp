@@ -10,29 +10,63 @@
 // Qt internal function (qtbase/src/widgets/effects/qpixmapfilter.cpp)
 extern void qt_blurImage(QPainter* p, QImage& blurImage, qreal radius, bool quality, bool alphaOnly, int transposed);
 
+POPUPUI_BEGIN_NAMESPACE
+
 ShadowWidget::ShadowWidget(QWidget* parent)
     : QWidget(parent)
 {
-    setContentsMargins(shadowRadius, shadowRadius, shadowRadius, shadowRadius);
+    setContentsMargins(shadowMargins());
 }
 
 void ShadowWidget::showArrow(bool show) {
     isShowArrow = show;
 }
 
+void ShadowWidget::resizeContent(int width, int height) {
+    resize(outerSizeForContent(QSize(width, height)));
+}
+
+void ShadowWidget::setContentFixedSize(int width, int height) {
+    setFixedSize(outerSizeForContent(QSize(width, height)));
+}
+
+void ShadowWidget::setContentFixedWidth(int width) {
+    setFixedWidth(outerSizeForContent(QSize(width, contentSizeForOuter(size()).height())).width());
+}
+
+void ShadowWidget::setContentFixedHeight(int height) {
+    setFixedHeight(outerSizeForContent(QSize(contentSizeForOuter(size()).width(), height)).height());
+}
+
 void ShadowWidget::setShadowRadius(int radius) {
-    shadowRadius = radius;
+    const QMargins oldMargins = expandedShadowMargins;
+    shadowRadius = qMax(0, radius);
     shadowImage = QImage();
-    setContentsMargins(
-        shadowEdges & Qt::LeftEdge ? shadowRadius : 0,
-        shadowEdges & Qt::TopEdge ? shadowRadius : 0,
-        shadowEdges & Qt::RightEdge ? shadowRadius : 0,
-        shadowEdges & Qt::BottomEdge ? shadowRadius : 0
-    );
+    const QMargins newMargins = shadowMargins();
+    setContentsMargins(newMargins);
+    if (shadowSizeExpanded) {
+        expandedShadowMargins = newMargins;
+        adjustSizeForShadowMargins(oldMargins, newMargins);
+    }
     repaint();
 }
 
-void ShadowWidget::paintEvent(QPaintEvent* event) {
+void ShadowWidget::setAutoExpandShadowSize(bool enabled) {
+    autoExpandShadowSize = enabled;
+}
+
+void ShadowWidget::setAutoAdjustShadowPosition(bool enabled) {
+    autoAdjustShadowPosition = enabled;
+}
+
+bool ShadowWidget::event(QEvent* event) {
+    if (event && event->type() == QEvent::Show) {
+        ensureShadowSizeExpanded();
+    }
+    return QWidget::event(event);
+}
+
+void ShadowWidget::paintEvent(QPaintEvent*) {
     if (shadowImage.isNull() || shadowImage.size() != size()) {
         shadowImage = createShadow(shadowRadius, shadowColor, size() - QSize(2 * shadowRadius, 2 * shadowRadius), shadowCornerRadius);
     }
@@ -196,3 +230,85 @@ QPainterPath ShadowWidget::createArrowPath() const {
     path.closeSubpath();
     return path;
 }
+
+QMargins ShadowWidget::shadowMargins() const {
+    return {
+        shadowEdges & Qt::LeftEdge ? shadowRadius : 0,
+        shadowEdges & Qt::TopEdge ? shadowRadius : 0,
+        shadowEdges & Qt::RightEdge ? shadowRadius : 0,
+        shadowEdges & Qt::BottomEdge ? shadowRadius : 0,
+    };
+}
+
+QSize ShadowWidget::outerSizeForContent(const QSize& contentSize) const {
+    if (!shadowSizeExpanded) {
+        return contentSize;
+    }
+    return contentSize + QSize(
+        expandedShadowMargins.left() + expandedShadowMargins.right(),
+        expandedShadowMargins.top() + expandedShadowMargins.bottom()
+    );
+}
+
+QSize ShadowWidget::contentSizeForOuter(const QSize& outerSize) const {
+    if (!shadowSizeExpanded) {
+        return outerSize;
+    }
+    return outerSize - QSize(
+        expandedShadowMargins.left() + expandedShadowMargins.right(),
+        expandedShadowMargins.top() + expandedShadowMargins.bottom()
+    );
+}
+
+void ShadowWidget::adjustSizeForShadowMargins(const QMargins& oldMargins, const QMargins& newMargins) {
+    const QSize sizeDelta(
+        newMargins.left() + newMargins.right() - oldMargins.left() - oldMargins.right(),
+        newMargins.top() + newMargins.bottom() - oldMargins.top() - oldMargins.bottom()
+    );
+    const QPoint positionDelta(
+        newMargins.left() - oldMargins.left(),
+        newMargins.top() - oldMargins.top()
+    );
+    if (sizeDelta.isNull() && positionDelta.isNull()) {
+        return;
+    }
+
+    const QSize currentSize = size();
+    const QPoint currentPos = pos();
+    const QSize currentMinimum = minimumSize();
+    const QSize currentMaximum = maximumSize();
+    const QSize newMinimum(
+        qBound(0, currentMinimum.width() + sizeDelta.width(), QWIDGETSIZE_MAX),
+        qBound(0, currentMinimum.height() + sizeDelta.height(), QWIDGETSIZE_MAX)
+    );
+    const QSize newMaximum(
+        currentMaximum.width() == QWIDGETSIZE_MAX
+            ? QWIDGETSIZE_MAX
+            : qBound(newMinimum.width(), currentMaximum.width() + sizeDelta.width(), QWIDGETSIZE_MAX),
+        currentMaximum.height() == QWIDGETSIZE_MAX
+            ? QWIDGETSIZE_MAX
+            : qBound(newMinimum.height(), currentMaximum.height() + sizeDelta.height(), QWIDGETSIZE_MAX)
+    );
+
+    setMinimumSize(newMinimum);
+    setMaximumSize(newMaximum);
+    resize(
+        qMax(newMinimum.width(), currentSize.width() + sizeDelta.width()),
+        qMax(newMinimum.height(), currentSize.height() + sizeDelta.height())
+    );
+    if (autoAdjustShadowPosition) {
+        move(currentPos - positionDelta);
+    }
+}
+
+void ShadowWidget::ensureShadowSizeExpanded() {
+    if (shadowSizeExpanded || !autoExpandShadowSize) {
+        return;
+    }
+
+    expandedShadowMargins = shadowMargins();
+    shadowSizeExpanded = true;
+    adjustSizeForShadowMargins(QMargins(), expandedShadowMargins);
+}
+
+POPUPUI_END_NAMESPACE
