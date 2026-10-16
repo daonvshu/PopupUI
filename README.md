@@ -13,6 +13,10 @@ target_link_libraries(${PROJECT_NAME}
 )
 ```
 
+`DialogOverlay` 会自动导入 Qt 和 `DialogAnimations` 依赖，使用动画类时仍然只需链接 `PopupUI::DialogOverlay`。
+旧版头文件路径 `popupui/dialogoverlay/...` 和 `popupui/overlay/animations/...` 继续兼容。
+新代码推荐使用 `popupui/overlay/...` 和 `popupui/animations/...`。
+
 2. 初始化
 将需要在其之上显示对话框的控件设置为父窗口，通常是App主窗口。
 ```c++

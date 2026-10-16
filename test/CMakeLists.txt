@@ -13,6 +13,7 @@ add_compile_definitions(ROOT_PROJECT_PATH="${CMAKE_SOURCE_DIR}")
 
 add_executable(${PROJECT_NAME} WIN32
     main.cpp
+    compatibility/legacyincludes.cpp
 
     overlay/overlaytest.h
     overlay/overlaytest.cpp

@@ -29,7 +29,6 @@ target_link_libraries(${PROJECT_NAME}
         Qt${QT_VERSION_MAJOR}::Core
         Qt${QT_VERSION_MAJOR}::Gui
         Qt${QT_VERSION_MAJOR}::Widgets
-    PRIVATE
         DialogAnimations
 )
 
@@ -56,6 +55,11 @@ install(TARGETS ${PROJECT_NAME}
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     DESTINATION include/popupui/overlay
+    FILES_MATCHING PATTERN "*.h"
+)
+
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../dialogoverlay/
+    DESTINATION include/popupui/dialogoverlay
     FILES_MATCHING PATTERN "*.h"
 )
 
