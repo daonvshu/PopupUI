@@ -27,7 +27,7 @@ QAbstractAnimation* ScalePopupAnimation::enter(QWidget* widget) {
     anim->setDuration(duration);
     anim->setStartValue(startGeom);
     anim->setEndValue(finalGeom);
-    anim->setEasingCurve(QEasingCurve::OutBack); // 后弹效果
+    anim->setEasingCurve(QEasingCurve::OutBack); // Overshoot effect
     return anim;
 }
 

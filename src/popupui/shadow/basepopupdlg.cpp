@@ -174,7 +174,7 @@ void BasePopupDlg::showEvent(QShowEvent* event) {
         }
     }
     if (!isAnimating) {
-        // 延迟一帧执行动画，确保窗口几何信息已就绪
+        // Defer the animation until the window geometry is ready
         QMetaObject::invokeMethod(this, &BasePopupDlg::playShowAnimation, Qt::QueuedConnection);
     }
     if (!(windowFlags() & Qt::WindowDoesNotAcceptFocus)) {
@@ -272,30 +272,30 @@ void BasePopupDlg::moveToTargetRect(const QRect& targetRectGlobal, Qt::Edge edge
 
 void BasePopupDlg::closeEvent(QCloseEvent* event) {
     if (reallyClose) {
-        // 真正关闭
+        // Complete the close operation
         emit popClosed();
         QWidget::closeEvent(event);
         reallyClose = false;
         return;
     }
 
-    // 拦截关闭，先播放动画
+    // Intercept closing to play the hide animation first
     event->ignore();
     playHideAnimation();
 }
 
 void BasePopupDlg::setupAnimations() {
-    // === 显示动画组 ===
+    // === Show animation group ===
     showAnimGroup = new QParallelAnimationGroup(this);
 
-    // 透明度动画
+    // Opacity animation
     fadeInAnim = new QPropertyAnimation(this, "windowOpacity");
     fadeInAnim->setDuration(animDuration);
     fadeInAnim->setStartValue(0.0);
     fadeInAnim->setEndValue(1.0);
     fadeInAnim->setEasingCurve(QEasingCurve::OutCubic);
 
-    // 位置动画
+    // Position animation
     slideUpAnim = new QPropertyAnimation(this, "geometry");
     slideUpAnim->setDuration(animDuration);
     slideUpAnim->setEasingCurve(QEasingCurve::OutCubic);
@@ -305,17 +305,17 @@ void BasePopupDlg::setupAnimations() {
 
     connect(showAnimGroup, &QParallelAnimationGroup::finished, this, &BasePopupDlg::onShowAnimationFinished);
 
-    // === 隐藏动画组 ===
+    // === Hide animation group ===
     hideAnimGroup = new QParallelAnimationGroup(this);
 
-    // 透明度动画
+    // Opacity animation
     fadeOutAnim = new QPropertyAnimation(this, "windowOpacity");
-    fadeOutAnim->setDuration(animDuration * 0.8); // 隐藏稍快
+    fadeOutAnim->setDuration(animDuration * 0.8); // Hide slightly faster
     fadeOutAnim->setStartValue(1.0);
     fadeOutAnim->setEndValue(0.0);
     fadeOutAnim->setEasingCurve(QEasingCurve::InCubic);
 
-    // 位置动画
+    // Position animation
     slideDownAnim = new QPropertyAnimation(this, "geometry");
     slideDownAnim->setDuration(animDuration * 0.8);
     slideDownAnim->setEasingCurve(QEasingCurve::InCubic);
@@ -331,22 +331,22 @@ void BasePopupDlg::playShowAnimation() {
 
     isAnimating = true;
 
-    // 保存目标位置
+    // Save the target geometry
     QRect targetGeometry = geometry();
 
-    // 设置起始位置（下方）
+    // Place the starting geometry below the target
     QRect startGeometry = targetGeometry;
     startGeometry.moveTop(targetGeometry.top() + slideDistance);
 
-    // 先设置到起始状态
+    // Apply the initial state
     setGeometry(startGeometry);
     setWindowOpacity(0.0);
 
-    // 配置动画
+    // Configure the animation
     slideUpAnim->setStartValue(startGeometry);
     slideUpAnim->setEndValue(targetGeometry);
 
-    // 启动动画
+    // Start the animation
     showAnimGroup->start();
 }
 
@@ -355,30 +355,30 @@ void BasePopupDlg::playHideAnimation() {
 
     isAnimating = true;
 
-    // 当前位置
+    // Current geometry
     QRect currentGeometry = geometry();
 
-    // 目标位置（下方）
+    // Target geometry below the current position
     QRect endGeometry = currentGeometry;
     endGeometry.moveTop(currentGeometry.top() + slideDistance * 0.6);
 
-    // 配置动画
+    // Configure the animation
     slideDownAnim->setStartValue(currentGeometry);
     slideDownAnim->setEndValue(endGeometry);
 
-    // 启动动画
+    // Start the animation
     hideAnimGroup->start();
 }
 
 void BasePopupDlg::onShowAnimationFinished() {
     isAnimating = false;
-    setWindowOpacity(1.0); // 确保完全不透明
+    setWindowOpacity(1.0); // Ensure full opacity
 }
 
 void BasePopupDlg::onHideAnimationFinished() {
     isAnimating = false;
     reallyClose = true;
-    close(); // 真正隐藏
+    close(); // Complete the close operation
 }
 
 POPUPUI_END_NAMESPACE

@@ -143,20 +143,20 @@ QPainterPath ShadowWidget::createArrowPath() const {
         return QPainterPath();
     }
 
-    const qreal r  = 2.0;                    // 圆角半径
-    const qreal aw = 7.0;                    // 箭头半高/半宽
-    const qreal offset = shadowRadius + shadowCornerRadius + 12; // 避边距离（防止贴边）
+    const qreal r  = 2.0;                    // Corner radius
+    const qreal aw = 7.0;                    // Arrow half-height/half-width
+    const qreal offset = shadowRadius + shadowCornerRadius + 12; // Clearance from the corners
     const qreal sr = shadowRadius;
 
     QPainterPath path;
-    QPointF base; // 箭头基点（底边中点）
+    QPointF base; // Arrow base point (midpoint of its base edge)
 
-    // ---- Step 1: 根据箭头边方向计算基点 ----
+    // ---- Step 1: Calculate the base point for the arrow edge ----
     switch (arrowEdgeAlign) {
     case Qt::TopEdge:
-        // 箭头在上边，垂直方向固定在 shadowRadius
+        // Top-edge arrow: fix the vertical position at shadowRadius
         base.setY(sr);
-        // 水平位置（左、中、右）
+        // Horizontal position (left, center, right)
         if (arrowPosAlign & Qt::AlignLeft)
             base.setX(offset);
         else if (arrowPosAlign & Qt::AlignRight)
@@ -196,7 +196,7 @@ QPainterPath ShadowWidget::createArrowPath() const {
         break;
     }
 
-    // ---- Step 2: 根据边方向绘制箭头路径 ----
+    // ---- Step 2: Draw the arrow path for the edge direction ----
     switch (arrowEdgeAlign) {
     case Qt::TopEdge:
         path.moveTo(base.x() - aw, base.y());

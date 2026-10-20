@@ -49,10 +49,10 @@ protected:
     QPropertyAnimation *fadeOutAnim;
     QPropertyAnimation *slideDownAnim;
 
-    bool isAnimating = false;       // 动画进行中标志
-    bool reallyClose = false;       // 真正关闭标志
-    int animDuration = 180;         // 动画时长
-    int slideDistance = 30;         // 滑动距离
+    bool isAnimating = false;       // Animation in progress
+    bool reallyClose = false;       // Allow closing after the hide animation
+    int animDuration = 180;         // Animation duration
+    int slideDistance = 30;         // Slide distance
 
 protected:
     void setupAnimations();
