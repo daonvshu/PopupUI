@@ -80,7 +80,7 @@ void ShadowWidget::paintEvent(QPaintEvent*) {
     p.restore();
 
     QStyleOption opt;
-    opt.init(this);
+    opt.initFrom(this);
     opt.rect.adjust(
         shadowEdges & Qt::LeftEdge ? shadowRadius : 0,
         shadowEdges & Qt::TopEdge ? shadowRadius : 0,

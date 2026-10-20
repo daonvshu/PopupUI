@@ -5,6 +5,18 @@
 
 POPUPUI_BEGIN_NAMESPACE
 
+namespace {
+
+QPoint globalMousePosition(const QMouseEvent* event) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    return event->globalPosition().toPoint();
+#else
+    return event->globalPos();
+#endif
+}
+
+} // namespace
+
 DialogMask::DialogMask(QWidget* parent, QWidget* dlg, const PopupProperty& props)
     : QWidget(parent)
     , targetDlg(dlg)
@@ -59,10 +71,14 @@ bool DialogMask::eventFilter(QObject* watched, QEvent* event) {
         if (props.draggableWidget) {
             auto me = static_cast<QMouseEvent*>(event);
             if (me->button() == Qt::LeftButton) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+                auto pos = me->position().toPoint();
+#else
                 auto pos = me->pos();
+#endif
                 if (props.draggableWidget->geometry().contains(pos)) {
                     dragging = true;
-                    dragStartPosition = me->globalPos();
+                    dragStartPosition = globalMousePosition(me);
                     dragStartDialogPosition = targetDlg->pos();
                     return true;
                 }
@@ -71,7 +87,7 @@ bool DialogMask::eventFilter(QObject* watched, QEvent* event) {
     } else if (event->type() == QEvent::MouseMove && watched == targetDlg) {
         if (dragging) {
             auto me = static_cast<QMouseEvent*>(event);
-            auto offset = me->globalPos() - dragStartPosition;
+            auto offset = globalMousePosition(me) - dragStartPosition;
             auto newPos = dragStartDialogPosition + offset;
             if (props.boundedDrag) {
                 auto parentWin = targetDlg->parentWidget();

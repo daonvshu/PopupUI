@@ -3,8 +3,26 @@
 #include <qevent.h>
 #include <qguiapplication.h>
 #include <qscreen.h>
+#include <qwindow.h>
 
 POPUPUI_BEGIN_NAMESPACE
+
+namespace {
+
+QScreen* screenForWidget(const QWidget* widget) {
+    if (widget) {
+        const auto* window = widget->window()->windowHandle();
+        if (window && window->screen()) {
+            return window->screen();
+        }
+        if (auto* screen = QGuiApplication::screenAt(widget->mapToGlobal(widget->rect().center()))) {
+            return screen;
+        }
+    }
+    return QGuiApplication::primaryScreen();
+}
+
+} // namespace
 
 BasePopupDlg::BasePopupDlg(QWidget* parent)
     : ShadowWidget(parent)
@@ -149,7 +167,7 @@ void BasePopupDlg::showEvent(QShowEvent* event) {
         arrowPosAlign = posAlign;
         move(popupRect.topLeft());
     } else {
-        QScreen* screen = parentWidget() ? parentWidget()->screen() : QGuiApplication::primaryScreen();
+        QScreen* screen = screenForWidget(parentWidget());
         if (screen) {
             const QRect screenRect = screen->availableGeometry();
             move(screenRect.center() - rect().center());
@@ -232,11 +250,8 @@ QRect BasePopupDlg::calcPopupRect(Qt::Edge edgeAlign, Qt::Alignment posAlign) co
 
 QRect BasePopupDlg::screenAvailableRectForPlacement() const {
     QScreen* screen = QGuiApplication::screenAt(calcAnchorPoint(arrowEdgeAlign, arrowPosAlign));
-    if (!screen && parentWidget()) {
-        screen = parentWidget()->screen();
-    }
     if (!screen) {
-        screen = QGuiApplication::primaryScreen();
+        screen = screenForWidget(parentWidget());
     }
     return screen ? screen->availableGeometry() : QRect();
 }
